@@ -57,15 +57,15 @@ class Board:
 
         self.board[row * self.width + col] = piece
 
-    def move_piece(self, piece: Piece, row: int, col: int) -> None:
+    def move_piece(self, piece: Piece, row: int, col: int) -> bool:
         if piece is None or piece.color != self.turn or self.winner is not None:
-            return
+            return False
         
         if self.get_piece(row, col) is not None:
-            return
+            return False
         
         if not piece.check_legal_move(row, col):
-            return
+            return False
         
         self.set_piece(piece.row, piece.col, None)
         self.set_piece(row, col, piece)
@@ -81,6 +81,8 @@ class Board:
 
         self.turn = not self.turn
         self.check_winner()
+
+        return True
 
     def undo_move(self) -> None:
         if len(self.list_of_moves) == 0:
@@ -111,15 +113,19 @@ class Board:
                     king = piece
 
         if legal_moves == 0:
+            print("No legal moves")
             self.winner = BLACK if self.turn == WHITE else WHITE
             return
 
         if king is None:
+            print("No king")
             self.winner = BLACK
             return
 
-        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1) or (king.row == self.height // 2 and king.col == self.width // 2):
+        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1):
+            print("King in castle")
             self.winner = WHITE
+            return
 
     def starting_position(self) -> None:
         for row, col, color, type_p in STARTING_POSITIONS[f"{self.height}x{self.width}"]:

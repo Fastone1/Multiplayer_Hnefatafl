@@ -66,12 +66,12 @@ class Piece:
     def legal_moves(self) -> list[tuple[int, int]]:
         moves = []
         
-        for r in range(len(self.game.board.board)):
+        for r in range(self.game.board.height):
             if r != self.row:
                 if self.check_legal_move(r, self.col):
                     moves.append((r, self.col))
         
-        for c in range(len(self.game.board.board[0])):
+        for c in range(self.game.board.width):
             if c != self.col:
                 if self.check_legal_move(self.row, c):
                     moves.append((self.row, c))

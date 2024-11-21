@@ -2,11 +2,11 @@ WIDTH = 11 * 16 * 4
 HEIGHT = 11 * 16 * 4
 RENDER_SCALE = 4
 
-WHITE = 0
-BLACK = 1
+WHITE = False
+BLACK = True
 
-ROOK = 2
-KING = 3
+ROOK = 0
+KING = 1
 
 SQUARE_SIZE = 16
 DARK_TILE = (157, 90, 61)
