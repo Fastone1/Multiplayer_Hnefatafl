@@ -62,15 +62,18 @@ class Game:
                         x, y = x // RENDER_SCALE, y // RENDER_SCALE
                         col = x // SQUARE_SIZE
                         row = y // SQUARE_SIZE
-                        
                         if self.selected_piece is not None:
                             if self.selected_piece.row != row or self.selected_piece.col != col:
-                                self.selected_piece.move(row, col)
+                                self.board.move_piece(self.selected_piece, row, col)
                             self.selected_piece = None
                         else:
                             piece = self.board.get_piece(row, col)
                             if piece is not None:
                                 self.selected_piece = piece
+
+                    if event.button == 3:
+                        self.selected_piece = None
+                        self.board.undo_move()
 
             self.screen.blit(pygame.transform.scale(self.display, (WIDTH, HEIGHT)), (0, 0))
 

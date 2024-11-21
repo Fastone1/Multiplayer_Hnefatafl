@@ -7,6 +7,7 @@ import pygame
 
 from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE
 from scripts.pieces import Piece
+from scripts.move import Move
 
 STARTING_POSITIONS = {
     "9x9": [
@@ -33,7 +34,10 @@ class Board:
         self.game = game
         self.width = width
         self.height = height
+        self.turn = BLACK
+        self.winner = None
         self.board: list[Piece] = []
+        self.list_of_moves: list[Move] = []
         self.create_board(width, height)
         self.starting_position()
 
@@ -53,6 +57,70 @@ class Board:
 
         self.board[row * self.width + col] = piece
 
+    def move_piece(self, piece: Piece, row: int, col: int) -> None:
+        if piece is None or piece.color != self.turn or self.winner is not None:
+            return
+        
+        if self.get_piece(row, col) is not None:
+            return
+        
+        if not piece.check_legal_move(row, col):
+            return
+        
+        self.set_piece(piece.row, piece.col, None)
+        self.set_piece(row, col, piece)
+        self.list_of_moves.append(Move(piece.row, piece.col, row, col))
+        piece.move(row, col)
+
+        for square in self.adjacent_squares(row, col):
+            if piece.check_capture(square[0], square[1]):
+                captured_piece = self.get_piece(square[0], square[1])
+                self.list_of_moves[-1].is_capture = True
+                self.list_of_moves[-1].captured_pieces.append(captured_piece)
+                self.set_piece(square[0], square[1], None)
+
+        self.turn = not self.turn
+        self.check_winner()
+
+    def undo_move(self) -> None:
+        if len(self.list_of_moves) == 0:
+            return
+        
+        self.turn = not self.turn
+
+        move = self.list_of_moves.pop()
+        piece = self.get_piece(move.to_row, move.to_col)
+        self.set_piece(move.from_row, move.from_col, piece)
+        piece.move(move.from_row, move.from_col)
+        self.set_piece(move.to_row, move.to_col, None)
+        
+        if move.is_capture:
+            for captured_piece in move.captured_pieces:
+                self.set_piece(captured_piece.row, captured_piece.col, captured_piece)
+                captured_piece.move(captured_piece.row, captured_piece.col)
+
+    def check_winner(self) -> None:
+        king = None
+        legal_moves = 0
+        for piece in self.board:
+            if piece is not None:
+                if piece.color == self.turn and piece.legal_moves() != []:
+                    legal_moves += 1
+
+                if piece.type == KING:
+                    king = piece
+
+        if legal_moves == 0:
+            self.winner = BLACK if self.turn == WHITE else WHITE
+            return
+
+        if king is None:
+            self.winner = BLACK
+            return
+
+        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1) or (king.row == self.height // 2 and king.col == self.width // 2):
+            self.winner = WHITE
+
     def starting_position(self) -> None:
         for row, col, color, type_p in STARTING_POSITIONS[f"{self.height}x{self.width}"]:
             piece = Piece(self.game, row, col, color, type_p)
@@ -66,14 +134,14 @@ class Board:
                 squares.append((r, c))
         return squares
     
-    def is_castle(self, row: int, col: int) -> bool:
+    def is_castle_empty(self, row: int, col: int) -> bool:
         topleft = row == 0 and col == 0
         topright = row == 0 and col == self.width - 1
         bottomleft = row == self.height - 1 and col == 0
         bottomnright = row == self.height - 1 and col == self.width - 1
         middle = row == self.height // 2 and col == self.width // 2
 
-        return topleft or topright or bottomleft or bottomnright or middle
+        return (topleft or topright or bottomleft or bottomnright or middle) and self.get_piece(row, col) is None
 
     def render(self, screen: pygame.Surface) -> None:
         light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
