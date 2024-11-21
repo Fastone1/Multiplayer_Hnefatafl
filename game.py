@@ -64,8 +64,7 @@ class Game:
                         row = y // SQUARE_SIZE
                         if self.selected_piece is not None:
                             if self.selected_piece.row != row or self.selected_piece.col != col:
-                                if not self.board.move_piece(self.selected_piece, row, col):
-                                    print("Invalid move")
+                                self.board.move_piece(self.selected_piece, row, col)
                             self.selected_piece = None
                         else:
                             piece = self.board.get_piece(row, col)

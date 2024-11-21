@@ -58,13 +58,20 @@ class Board:
         self.board[row * self.width + col] = piece
 
     def move_piece(self, piece: Piece, row: int, col: int) -> bool:
-        if piece is None or piece.color != self.turn or self.winner is not None:
+        if piece is None or piece.color != self.turn:
+            print("Not your turn")
+            return False
+        
+        if self.winner is not None:
+            print("Game has ended")
             return False
         
         if self.get_piece(row, col) is not None:
+            print("Square is occupied")
             return False
         
         if not piece.check_legal_move(row, col):
+            print("Illegal move")
             return False
         
         self.set_piece(piece.row, piece.col, None)
