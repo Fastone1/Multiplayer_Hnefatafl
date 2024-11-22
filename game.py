@@ -50,7 +50,6 @@ class Game:
             # Update
             if self.board.winner is not None:
                 print(f"Winner: {"Black" if self.board.winner == BLACK else "White"}")
-                self.running = False
 
             # Render
             self.board.render(self.display)
