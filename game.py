@@ -38,7 +38,7 @@ class Game:
         set_cursor(self.assets["mouse"])
 
         # Board
-        self.board = Board(self, 11, 11)
+        self.board = Board(self, 9, 9)
 
         # Selected piece
         self.selected_piece = None
@@ -48,6 +48,9 @@ class Game:
             self.screen.fill((0, 0, 0))
 
             # Update
+            if self.board.winner is not None:
+                print(f"Winner: {"Black" if self.board.winner == BLACK else "White"}")
+                self.running = False
 
             # Render
             self.board.render(self.display)
@@ -55,6 +58,14 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.running = False
+
+                    if event.key == pygame.K_r:
+                        self.board = Board(self, 9, 9)
+                        self.selected_piece = None
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
@@ -65,14 +76,13 @@ class Game:
                         if self.selected_piece is not None:
                             if self.selected_piece.row != row or self.selected_piece.col != col:
                                 self.board.move_piece(self.selected_piece, row, col)
-                            self.selected_piece = None
+                            self.deselect_piece()
                         else:
                             piece = self.board.get_piece(row, col)
-                            if piece is not None:
-                                self.selected_piece = piece
+                            self.select_piece(piece)
 
                     if event.button == 3:
-                        self.selected_piece = None
+                        self.deselect_piece()
                         self.board.undo_move()
 
             self.screen.blit(pygame.transform.scale(self.display, (WIDTH, HEIGHT)), (0, 0))
@@ -82,6 +92,18 @@ class Game:
 
         pygame.quit()
         sys.exit()
+
+    def select_piece(self, piece):
+        if piece is not None:
+            piece.selected = True
+            self.selected_piece = piece
+        else:
+            self.selected_piece = None
+
+    def deselect_piece(self):
+        if self.selected_piece is not None:
+            self.selected_piece.selected = False
+            self.selected_piece = None
 
 if __name__ == "__main__":
     game = Game()

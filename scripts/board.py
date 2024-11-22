@@ -8,13 +8,17 @@ import pygame
 from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE
 from scripts.pieces import Piece
 from scripts.move import Move
-
-STARTING_POSITIONS = {
-    "9x9": [
+""""9x9": [
         (4, 4, WHITE, KING),
         (0, 4, BLACK, ROOK), (1, 4, BLACK, ROOK), (2, 4, WHITE, ROOK), (3, 4, WHITE, ROOK), (5, 4, WHITE, ROOK), (6, 4, WHITE, ROOK), (7, 4, BLACK, ROOK), (8, 4, BLACK, ROOK),
         (4, 0, BLACK, ROOK), (4, 1, BLACK, ROOK), (4, 2, WHITE, ROOK), (4, 3, WHITE, ROOK), (4, 5, WHITE, ROOK), (4, 6, WHITE, ROOK), (4, 7, BLACK, ROOK), (4, 8, BLACK, ROOK),
         (0, 3, BLACK, ROOK), (0, 5, BLACK, ROOK), (8, 3, BLACK, ROOK), (8, 5, BLACK, ROOK), (3, 0, BLACK, ROOK), (5, 0, BLACK, ROOK), (3, 8, BLACK, ROOK), (5, 8, BLACK, ROOK)
+    ],"""
+STARTING_POSITIONS = {
+    
+    "9x9": [
+        (0, 1, WHITE, KING),
+        (0, 2, BLACK, ROOK), (1, 2, BLACK, ROOK), (4, 8, BLACK, ROOK), (8, 4, BLACK, ROOK),
     ],
     "11x11": [
         (5, 5, WHITE, KING),
@@ -58,13 +62,16 @@ class Board:
         self.board[row * self.width + col] = piece
 
     def move_piece(self, piece: Piece, row: int, col: int) -> None:
-        if piece is None or piece.color != self.turn or self.winner is not None:
+        if piece is None or piece.color != self.turn:
+            print("Not your turn")
             return
         
-        if self.get_piece(row, col) is not None:
+        if self.winner is not None:
+            print("Game is over")
             return
         
         if not piece.check_legal_move(row, col):
+            print("Illegal move")
             return
         
         self.set_piece(piece.row, piece.col, None)
@@ -118,7 +125,7 @@ class Board:
             self.winner = BLACK
             return
 
-        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1) or (king.row == self.height // 2 and king.col == self.width // 2):
+        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1):
             self.winner = WHITE
 
     def starting_position(self) -> None:
@@ -156,5 +163,7 @@ class Board:
                 else:
                     screen.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
+        for row in range(self.height):
+            for col in range(self.width):
                 if self.board[row * self.width + col] is not None:
                     self.board[row * self.width + col].render(screen)
