@@ -1,5 +1,5 @@
-WIDTH = 11 * 16 * 4
-HEIGHT = 11 * 16 * 4
+WIDTH = 9 * 16 * 4
+HEIGHT = 9 * 16 * 4
 RENDER_SCALE = 4
 
 WHITE = 0

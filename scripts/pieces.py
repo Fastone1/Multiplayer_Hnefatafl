@@ -14,6 +14,7 @@ class Piece:
         self.game = game
         self.row = row
         self.col = col
+        self.selected = False
         self.color = color
         self.type = type_p
         self.x = col * SQUARE_SIZE
@@ -26,6 +27,16 @@ class Piece:
         self.y = row * SQUARE_SIZE
 
     def check_capture(self, row: int, col: int) -> bool:
+        '''
+        Check if the piece can capture the piece at the given row and column.
+
+        Parameters:
+            row (int): The row of the piece to capture.
+            col (int): The column of the piece to capture.
+
+        Returns:
+            bool: True if the piece can capture the piece at the given row and column, False otherwise.
+        '''
         piece = self.game.board.get_piece(row, col)
         
         if piece is None:
@@ -39,16 +50,29 @@ class Piece:
             elif piece.type == KING:
                 orthogonal = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                 orthogonal_pieces = [self.game.board.get_piece(row + dr, col + dc) for dr, dc in orthogonal]
-                return all((piece is not None and piece.color == self.color) or self.game.board.is_castle_empty(row + dr, col + dc) for piece, (dr, dc) in zip(orthogonal_pieces, orthogonal))
+                print(orthogonal_pieces)
+                print(all((ortho_piece is not None and ortho_piece.color == BLACK) or \
+                            self.game.board.is_castle_empty(row + dr, col + dc) or \
+                             (row + dr < 0 or row + dr >= self.game.board.height or col + dc < 0 or col + dc >= self.game.board.width) \
+                             for ortho_piece, (dr, dc) in zip(orthogonal_pieces, orthogonal)))
+                return all((ortho_piece is not None and ortho_piece.color == BLACK) or \
+                           self.game.board.is_castle_empty(row + dr, col + dc) or \
+                            (row + dr < 0 or row + dr >= self.game.board.height or col + dc < 0 or col + dc >= self.game.board.width) \
+                            for ortho_piece, (dr, dc) in zip(orthogonal_pieces, orthogonal))
 
     def check_legal_move(self, row: int, col: int) -> bool:
-        raise NotImplementedError
-    
-    def legal_moves(self) -> list[tuple[int, int]]:
-        raise NotImplementedError
+        if (row != self.row and col != self.col) or (row == self.row and col == self.col):
+            return False
 
-    def check_legal_move(self, row: int, col: int) -> bool:
-        if row != self.row and col != self.col:
+        if self.game.board.get_piece(row, col) is not None:
+            return False
+        
+        if self.type != KING and \
+            ((row == 0 and col == 0) or \
+             (row == 0 and col == self.game.board.width - 1) or \
+             (row == self.game.board.height - 1 and col == 0) or \
+             (row == self.game.board.height - 1 and col == self.game.board.width - 1) or \
+             (row == self.game.board.height // 2 and col == self.game.board.width // 2)):
             return False
         
         if row == self.row:
@@ -67,20 +91,22 @@ class Piece:
         moves = []
         
         for r in range(self.game.board.height):
-            if r != self.row:
-                if self.check_legal_move(r, self.col):
-                    moves.append((r, self.col))
+            if self.check_legal_move(r, self.col):
+                moves.append((r, self.col))
         
         for c in range(self.game.board.width):
-            if c != self.col:
-                if self.check_legal_move(self.row, c):
-                    moves.append((self.row, c))
-        
+            if self.check_legal_move(self.row, c):
+                moves.append((self.row, c))
+
         return moves
     
     def render(self, screen: pygame.Surface):
         asset = self.game.assets[self.color][self.type]
         screen.blit(asset, (self.x, self.y))
+        if self.selected:
+            pygame.draw.rect(screen, (10, 240, 10), (self.x, self.y, SQUARE_SIZE, SQUARE_SIZE), 1)
+            for tile in self.legal_moves():
+                pygame.draw.rect(screen, (240, 10, 10), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
 
     def __repr__(self) -> str:
         color = "White" if self.color == WHITE else "Black"
