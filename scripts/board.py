@@ -8,17 +8,13 @@ import pygame
 from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE
 from scripts.pieces import Piece
 from scripts.move import Move
-""""9x9": [
+
+STARTING_POSITIONS = {
+    "9x9": [
         (4, 4, WHITE, KING),
         (0, 4, BLACK, ROOK), (1, 4, BLACK, ROOK), (2, 4, WHITE, ROOK), (3, 4, WHITE, ROOK), (5, 4, WHITE, ROOK), (6, 4, WHITE, ROOK), (7, 4, BLACK, ROOK), (8, 4, BLACK, ROOK),
         (4, 0, BLACK, ROOK), (4, 1, BLACK, ROOK), (4, 2, WHITE, ROOK), (4, 3, WHITE, ROOK), (4, 5, WHITE, ROOK), (4, 6, WHITE, ROOK), (4, 7, BLACK, ROOK), (4, 8, BLACK, ROOK),
         (0, 3, BLACK, ROOK), (0, 5, BLACK, ROOK), (8, 3, BLACK, ROOK), (8, 5, BLACK, ROOK), (3, 0, BLACK, ROOK), (5, 0, BLACK, ROOK), (3, 8, BLACK, ROOK), (5, 8, BLACK, ROOK)
-    ],"""
-STARTING_POSITIONS = {
-    
-    "9x9": [
-        (0, 1, WHITE, KING),
-        (0, 2, BLACK, ROOK), (1, 2, BLACK, ROOK), (4, 8, BLACK, ROOK), (8, 4, BLACK, ROOK),
     ],
     "11x11": [
         (5, 5, WHITE, KING),
@@ -138,6 +134,16 @@ class Board:
         for row, col, color, type_p in STARTING_POSITIONS[f"{self.height}x{self.width}"]:
             piece = Piece(self.game, row, col, color, type_p)
             self.set_piece(row, col, piece)
+
+    def reset(self, width: int, height: int) -> None:
+        self.width = width
+        self.height = height
+        self.board = []
+        self.create_board(self.width, self.height)
+        self.starting_position()
+        self.turn = BLACK
+        self.winner = None
+        self.list_of_moves = []
 
     def adjacent_squares(self, row: int, col: int) -> list[tuple[int, int]]:
         squares = []
