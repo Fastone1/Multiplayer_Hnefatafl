@@ -2,7 +2,7 @@ import pygame
 import sys
 
 # Constants
-from scripts.constants import WIDTH, HEIGHT, WHITE, BLACK, ROOK, KING, RENDER_SCALE, SQUARE_SIZE
+from scripts.constants import *
 
 # Utility functions
 from scripts.network import Network
@@ -14,10 +14,14 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        self.display = pygame.Surface((WIDTH // 4, HEIGHT // 4))
+        self.display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
         pygame.display.set_caption("Hnefatafl")
         self.clock = pygame.time.Clock()
         self.running = True
+
+        # State stack
+        self.state_stack = []
+        self.actions = {"click": False, "right_click": False, "esc": False}
 
         # Network
         #self.client = Network()
@@ -33,6 +37,9 @@ class Game:
             },
             "mouse": load_image("mouse.png")
         }
+
+        # Font
+        self.font = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 32)
 
         # Cursor
         set_cursor(self.assets["mouse"])
@@ -61,14 +68,19 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.running = False
+                        self.actions["esc"] = True
 
                     if event.key == pygame.K_r:
                         self.board = Board(self, 9, 9)
                         self.selected_piece = None
 
+                if event.type == pygame.KEYUP:
+                    if event.key == pygame.K_ESCAPE:
+                        self.actions["esc"] = False
+                        
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
+                        self.actions["click"] = True
                         x, y = pygame.mouse.get_pos() 
                         x, y = x // RENDER_SCALE, y // RENDER_SCALE
                         col = x // SQUARE_SIZE
@@ -82,8 +94,16 @@ class Game:
                             self.select_piece(piece)
 
                     if event.button == 3:
+                        self.actions["right_click"] = True
                         self.deselect_piece()
                         self.board.undo_move()
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.actions["click"] = False
+
+                    if event.button == 3:
+                        self.actions["right_click"] = False
 
             self.screen.blit(pygame.transform.scale(self.display, (WIDTH, HEIGHT)), (0, 0))
 
@@ -104,6 +124,12 @@ class Game:
         if self.selected_piece is not None:
             self.selected_piece.selected = False
             self.selected_piece = None
+
+    def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int):
+        text_surf = self.font.render(text, True, color)
+        text_rect = text_surf.get_rect()
+        text_rect.center = (x, y)
+        surf.blit(text_surf, text_rect)
 
 if __name__ == "__main__":
     game = Game()
