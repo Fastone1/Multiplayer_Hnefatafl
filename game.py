@@ -8,20 +8,24 @@ from scripts.constants import *
 from scripts.network import Network
 from scripts.util import load_image, set_cursor
 from scripts.board import Board
+from states.state import State
+from states.title import Title
 
 # Game class
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.size = (9, 9)
+        self.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
         self.display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
         pygame.display.set_caption("Hnefatafl")
         self.clock = pygame.time.Clock()
         self.running = True
 
         # State stack
-        self.state_stack = []
-        self.actions = {"click": False, "right_click": False, "esc": False}
+        self.state_stack: list[State] = [Title(self)]
+        self.load_initial_states()
+        self.actions = {"click": False, "right_click": False, "esc": False, "restart": False}
 
         # Network
         #self.client = Network()
@@ -39,16 +43,15 @@ class Game:
         }
 
         # Font
-        self.font = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 32)
+        self.font_big = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 32)
+        self.font_small = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 16)
 
         # Cursor
         set_cursor(self.assets["mouse"])
+        self.scroll = 0
 
         # Board
         self.board = Board(self, 9, 9)
-
-        # Selected piece
-        self.selected_piece = None
 
     def run(self):
         while self.running:
@@ -71,12 +74,16 @@ class Game:
                         self.actions["esc"] = True
 
                     if event.key == pygame.K_r:
-                        self.board = Board(self, 9, 9)
-                        self.selected_piece = None
+                        self.actions["restart"] = True
+                        self.board.reset(9, 9)
+                        self.board.deselect_piece()
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
                         self.actions["esc"] = False
+
+                    if event.key == pygame.K_r:
+                        self.actions["restart"] = False
                         
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
@@ -85,18 +92,24 @@ class Game:
                         x, y = x // RENDER_SCALE, y // RENDER_SCALE
                         col = x // SQUARE_SIZE
                         row = y // SQUARE_SIZE
-                        if self.selected_piece is not None:
-                            if self.selected_piece.row != row or self.selected_piece.col != col:
-                                self.board.move_piece(self.selected_piece, row, col)
-                            self.deselect_piece()
-                        else:
-                            piece = self.board.get_piece(row, col)
-                            self.select_piece(piece)
+                        piece = self.board.get_piece(row, col)
+                        if piece is not None and piece.color == self.board.turn:
+                            self.board.deselect_piece()
+                            self.board.select_piece(piece)
+                        elif piece is None and self.board.selected_piece is not None:
+                            self.board.move_piece(self.board.selected_piece, row, col)
+                            self.board.deselect_piece()
 
                     if event.button == 3:
                         self.actions["right_click"] = True
-                        self.deselect_piece()
+                        self.board.deselect_piece()
                         self.board.undo_move()
+
+                    if event.button == 4:
+                        self.scroll += 8
+
+                    if event.button == 5:
+                        self.scroll -= 8
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
@@ -113,23 +126,22 @@ class Game:
         pygame.quit()
         sys.exit()
 
-    def select_piece(self, piece):
-        if piece is not None:
-            piece.selected = True
-            self.selected_piece = piece
-        else:
-            self.selected_piece = None
+    def update(self):
+        self.state_stack[-1].update(self.actions)
 
-    def deselect_piece(self):
-        if self.selected_piece is not None:
-            self.selected_piece.selected = False
-            self.selected_piece = None
+    def render(self):
+        self.state_stack[-1].render(self.display)
 
-    def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int):
-        text_surf = self.font.render(text, True, color)
+    def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, size: str = "big"):
+        _font = self.font_big if size == "big" else self.font_small
+        text_surf = _font.render(text, True, color)
         text_rect = text_surf.get_rect()
         text_rect.center = (x, y)
         surf.blit(text_surf, text_rect)
+
+    def load_initial_states(self):
+        title_screen = Title(self)
+        self.state_stack.append(title_screen)
 
 if __name__ == "__main__":
     game = Game()

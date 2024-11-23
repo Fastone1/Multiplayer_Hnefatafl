@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE
+from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE, SIDE_PANEL
 from scripts.pieces import Piece
 from scripts.move import Move
 
@@ -38,6 +38,7 @@ class Board:
         self.winner = None
         self.board: list[Piece] = []
         self.list_of_moves: list[Move] = []
+        self.selected_piece: Piece = None
         self.create_board(width, height)
         self.starting_position()
 
@@ -135,6 +136,15 @@ class Board:
             piece = Piece(self.game, row, col, color, type_p)
             self.set_piece(row, col, piece)
 
+    def select_piece(self, piece):
+        if piece is not None:
+            self.selected_piece = piece
+        else:
+            self.selected_piece = None
+
+    def deselect_piece(self):
+        self.selected_piece = None
+
     def reset(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
@@ -144,6 +154,7 @@ class Board:
         self.turn = BLACK
         self.winner = None
         self.list_of_moves = []
+        self.selected_piece = None
 
     def adjacent_squares(self, row: int, col: int) -> list[tuple[int, int]]:
         squares = []
@@ -179,3 +190,27 @@ class Board:
             for col in range(self.width):
                 if self.board[row * self.width + col] is not None:
                     self.board[row * self.width + col].render(screen)
+
+        if self.selected_piece is not None:
+            pygame.draw.rect(screen, (0, 255, 0), (self.selected_piece.col * SQUARE_SIZE, self.selected_piece.row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
+            for tile in self.selected_piece.legal_moves():
+                pygame.draw.rect(screen, (255, 0, 0), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
+
+        if self.winner is not None:
+            text = "Black wins" if self.winner == BLACK else "White wins"
+            self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2)
+        else:
+            text = "Turn:"
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 10)
+            text = "Black" if self.turn == BLACK else "White"
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 5, size="small")
+            
+            text = "Moves:"
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() * 2 // 5)
+            surface = pygame.Surface((SIDE_PANEL, self.game.screen.get_height() // 2))
+            surface.fill((0, 0, 0))
+            for i, move in enumerate(self.list_of_moves):
+                text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
+                spacing = 8 + i * 28 + (1 - i % 2) * 8
+                self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.game.scroll, size="small")
+            self.game.screen.blit(surface, (self.game.screen.get_width() - SIDE_PANEL, self.game.screen.get_height() // 2))

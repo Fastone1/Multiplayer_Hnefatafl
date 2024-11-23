@@ -14,5 +14,6 @@ class Title(State):
         pass
 
     def render(self, surf: Surface):
-        pass
+        surf.fill((0, 0, 0))
+        self.game.draw_text("Hnefatafl", self.game.font, (255, 255, 255), surf, self.game.WIDTH // 2, self.game.HEIGHT // 2)
     

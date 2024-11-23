@@ -14,17 +14,12 @@ class Piece:
         self.game = game
         self.row = row
         self.col = col
-        self.selected = False
         self.color = color
         self.type = type_p
-        self.x = col * SQUARE_SIZE
-        self.y = row * SQUARE_SIZE
 
     def move(self, row: int, col: int):
         self.row = row
         self.col = col
-        self.x = col * SQUARE_SIZE
-        self.y = row * SQUARE_SIZE
 
     def check_capture(self, row: int, col: int) -> bool:
         '''
@@ -50,11 +45,6 @@ class Piece:
             elif piece.type == KING:
                 orthogonal = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                 orthogonal_pieces = [self.game.board.get_piece(row + dr, col + dc) for dr, dc in orthogonal]
-                print(orthogonal_pieces)
-                print(all((ortho_piece is not None and ortho_piece.color == BLACK) or \
-                            self.game.board.is_castle_empty(row + dr, col + dc) or \
-                             (row + dr < 0 or row + dr >= self.game.board.height or col + dc < 0 or col + dc >= self.game.board.width) \
-                             for ortho_piece, (dr, dc) in zip(orthogonal_pieces, orthogonal)))
                 return all((ortho_piece is not None and ortho_piece.color == BLACK) or \
                            self.game.board.is_castle_empty(row + dr, col + dc) or \
                             (row + dr < 0 or row + dr >= self.game.board.height or col + dc < 0 or col + dc >= self.game.board.width) \
@@ -102,12 +92,9 @@ class Piece:
     
     def render(self, screen: pygame.Surface):
         asset = self.game.assets[self.color][self.type]
-        screen.blit(asset, (self.x, self.y))
-        if self.selected:
-            pygame.draw.rect(screen, (10, 240, 10), (self.x, self.y, SQUARE_SIZE, SQUARE_SIZE), 1)
-            for tile in self.legal_moves():
-                pygame.draw.rect(screen, (240, 10, 10), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
-
+        x, y = self.col * SQUARE_SIZE, self.row * SQUARE_SIZE
+        screen.blit(asset, (x, y))
+        
     def __repr__(self) -> str:
         color = "White" if self.color == WHITE else "Black"
         type_p = "Rook" if self.type == ROOK else "King"
