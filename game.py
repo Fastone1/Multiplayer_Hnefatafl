@@ -17,7 +17,7 @@ class Game:
         pygame.init()
         self.size = (9, 9)
         self.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
-        self.display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+        self.board_display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
         pygame.display.set_caption("Hnefatafl")
         self.clock = pygame.time.Clock()
         self.running = True
@@ -25,7 +25,7 @@ class Game:
         # State stack
         self.state_stack: list[State] = [Title(self)]
         self.load_initial_states()
-        self.actions = {"click": False, "right_click": False, "esc": False, "restart": False}
+        self.actions = {"click": False, "right_click": False, "esc": False, "restart": False, "start": False}
 
         # Network
         #self.client = Network()
@@ -63,7 +63,7 @@ class Game:
                 self.board.reset(9, 9)
 
             # Render
-            self.board.render(self.display)
+            self.board.render(self.board_display)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -73,6 +73,9 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         self.actions["esc"] = True
 
+                    if event.key == pygame.K_RETURN:
+                        self.actions["start"] = True
+
                     if event.key == pygame.K_r:
                         self.actions["restart"] = True
                         self.board.reset(9, 9)
@@ -81,6 +84,9 @@ class Game:
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
                         self.actions["esc"] = False
+
+                    if event.key == pygame.K_RETURN:
+                        self.actions["start"] = True
 
                     if event.key == pygame.K_r:
                         self.actions["restart"] = False
@@ -118,7 +124,7 @@ class Game:
                     if event.button == 3:
                         self.actions["right_click"] = False
 
-            self.screen.blit(pygame.transform.scale(self.display, (WIDTH, HEIGHT)), (0, 0))
+            self.screen.blit(pygame.transform.scale(self.board_display, (WIDTH, HEIGHT)), (0, 0))
 
             pygame.display.flip()
             self.clock.tick(60)
@@ -130,18 +136,17 @@ class Game:
         self.state_stack[-1].update(self.actions)
 
     def render(self):
-        self.state_stack[-1].render(self.display)
+        self.state_stack[-1].render(self.screen)
 
-    def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, size: str = "big"):
-        _font = self.font_big if size == "big" else self.font_small
-        text_surf = _font.render(text, True, color)
+    def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):
+        text_surf = font.render(text, True, color)
         text_rect = text_surf.get_rect()
         text_rect.center = (x, y)
         surf.blit(text_surf, text_rect)
 
     def load_initial_states(self):
         title_screen = Title(self)
-        self.state_stack.append(title_screen)
+        title_screen.enter_state()
 
 if __name__ == "__main__":
     game = Game()

@@ -198,19 +198,19 @@ class Board:
 
         if self.winner is not None:
             text = "Black wins" if self.winner == BLACK else "White wins"
-            self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2)
+            self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2, self.game.font_big)
         else:
             text = "Turn:"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 10)
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 10, self.game.font_big)
             text = "Black" if self.turn == BLACK else "White"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 5, size="small")
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 5, self.game.font_small)
             
             text = "Moves:"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() * 2 // 5)
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() * 2 // 5, self.game.font_small)
             surface = pygame.Surface((SIDE_PANEL, self.game.screen.get_height() // 2))
             surface.fill((0, 0, 0))
             for i, move in enumerate(self.list_of_moves):
                 text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
                 spacing = 8 + i * 28 + (1 - i % 2) * 8
-                self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.game.scroll, size="small")
+                self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.game.scroll, self.game.font_small)
             self.game.screen.blit(surface, (self.game.screen.get_width() - SIDE_PANEL, self.game.screen.get_height() // 2))
