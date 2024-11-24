@@ -1,7 +1,7 @@
 import socket
-import sys
+from sys import exit
 
-class Network:
+class Connection:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = "127.0.0.1"
@@ -18,7 +18,7 @@ class Network:
             print("Closing the game...")
             print("Please try again later")
             self.client.close()
-            sys.exit()
+            exit()
 
     def send(self, data):
         try:
@@ -35,3 +35,17 @@ class Network:
             return data
         except socket.error as e:
             print(e)
+
+class Server:
+    def __init__(self):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.bind(("0.0.0.0", 5555))
+        self.server.listen()
+        print("Waiting for connection...")
+        self.accept()
+        
+    def accept(self):
+        conn, addr = self.server.accept()
+        print(f"Connection from {addr}")
+        conn.send(str.encode("Connected"))
+        return conn

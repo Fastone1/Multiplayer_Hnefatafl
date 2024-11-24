@@ -5,7 +5,7 @@ import sys
 from scripts.constants import *
 
 # Utility functions
-from scripts.network import Network
+from scripts.connection import Connection
 from scripts.util import load_image, set_cursor
 from scripts.board import Board
 from states.state import State
@@ -27,8 +27,8 @@ class Game:
         self.load_initial_states()
         self.actions = {"click": False, "right_click": False, "esc": False, "restart": False, "start": False}
 
-        # Network
-        #self.client = Network()
+        # Connection
+        #self.connection = Connection()
 
         # Assets
         self.assets = {
