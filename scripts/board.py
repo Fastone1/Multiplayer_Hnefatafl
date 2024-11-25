@@ -58,18 +58,22 @@ class Board:
 
         self.board[row * self.width + col] = piece
 
-    def move_piece(self, piece: Piece, row: int, col: int) -> None:
-        if piece is None or piece.color != self.turn:
+    def move_piece(self, piece: Piece, row: int, col: int) -> bool:
+        if piece is None:
+            print("No piece selected")
+            return False
+            
+        if piece.color != self.turn:
             print("Not your turn")
-            return
+            return False
         
         if self.winner is not None:
             print("Game is over")
-            return
+            return False
         
         if not piece.check_legal_move(row, col):
             print("Illegal move")
-            return
+            return False
         
         self.set_piece(piece.row, piece.col, None)
         self.set_piece(row, col, piece)
@@ -85,7 +89,6 @@ class Board:
 
         self.turn = not self.turn
         self.check_winner()
-
         return True
 
     def undo_move(self) -> None:
@@ -200,17 +203,15 @@ class Board:
             text = "Black wins" if self.winner == BLACK else "White wins"
             self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2, self.game.font_big)
         else:
-            text = "Turn:"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 10, self.game.font_big)
-            text = "Black" if self.turn == BLACK else "White"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 5, self.game.font_small)
+            text = "Turn: " + ("White" if self.turn == WHITE else "Black")
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 56, self.game.font_small)
             
             text = "Moves:"
-            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() * 2 // 5, self.game.font_small)
+            self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 24, self.game.font_small)
             surface = pygame.Surface((SIDE_PANEL, self.game.screen.get_height() // 2))
             surface.fill((0, 0, 0))
             for i, move in enumerate(self.list_of_moves):
                 text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
-                spacing = 8 + i * 28 + (1 - i % 2) * 8
+                spacing = 8 + i * 24
                 self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.game.scroll, self.game.font_small)
             self.game.screen.blit(surface, (self.game.screen.get_width() - SIDE_PANEL, self.game.screen.get_height() // 2))

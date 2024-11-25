@@ -80,6 +80,7 @@ class Game:
                         self.actions["restart"] = True
                         self.board.reset(9, 9)
                         self.board.deselect_piece()
+                        self.scroll = 0
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
@@ -94,7 +95,7 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         self.actions["click"] = True
-                        x, y = pygame.mouse.get_pos() 
+                        x, y = pygame.mouse.get_pos()
                         x, y = x // RENDER_SCALE, y // RENDER_SCALE
                         col = x // SQUARE_SIZE
                         row = y // SQUARE_SIZE
@@ -103,7 +104,8 @@ class Game:
                             self.board.deselect_piece()
                             self.board.select_piece(piece)
                         elif piece is None and self.board.selected_piece is not None:
-                            self.board.move_piece(self.board.selected_piece, row, col)
+                            if self.board.move_piece(self.board.selected_piece, row, col):
+                                self.adjust_scroll_to_bottom()
                             self.board.deselect_piece()
 
                     if event.button == 3:
@@ -112,10 +114,12 @@ class Game:
                         self.board.undo_move()
 
                     if event.button == 4:
-                        self.scroll += 8
+                        self.scroll = min(0, self.scroll + 8)
 
                     if event.button == 5:
-                        self.scroll -= 8
+                        spacing = len(self.board.list_of_moves) * 24 - self.screen.get_height() // 2
+                        if spacing > 0:
+                            self.scroll = max(-spacing, self.scroll - 8)
 
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
@@ -147,6 +151,11 @@ class Game:
     def load_initial_states(self):
         title_screen = Title(self)
         title_screen.enter_state()
+
+    def adjust_scroll_to_bottom(self):
+        spacing = len(self.board.list_of_moves) * 24 - self.screen.get_height() // 2
+        if spacing > 0:
+            self.scroll = -spacing
 
 if __name__ == "__main__":
     game = Game()
