@@ -2,8 +2,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from game import Game
-
-from pygame import Surface
     
 class State:
     def __init__(self, game: Game):
@@ -11,9 +9,11 @@ class State:
         self.prev_state = None
 
     def update(self, actions: dict[str, bool]):
+        print("Update not implemented")
         pass
 
-    def render(self, surf: Surface):
+    def render(self):
+        print("Render not implemented")
         pass
 
     def enter_state(self):

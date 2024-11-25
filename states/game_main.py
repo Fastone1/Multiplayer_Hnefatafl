@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from game import Game
 
 import pygame
-from scripts.constants import RENDER_SCALE, SQUARE_SIZE
+from scripts.constants import RENDER_SCALE, SQUARE_SIZE, WIDTH, HEIGHT
 from states.state import State
 
 class GameMain(State):
@@ -39,5 +39,9 @@ class GameMain(State):
             self.game.board.deselect_piece()
             self.game.board.undo_move()
 
-    def render(self, surf: pygame.Surface):
-        pass
+    def render(self):
+        self.game.screen.fill((30, 30, 30))
+        self.game.board.render()
+        self.game.screen.blit(pygame.transform.scale(self.game.board_display, (WIDTH, HEIGHT)), (0, 0))
+        self.game.screen.blit(self.game.top_screen, (0, 0))
+        pygame.display.flip()

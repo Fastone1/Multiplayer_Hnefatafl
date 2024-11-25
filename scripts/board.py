@@ -177,34 +177,36 @@ class Board:
         is_castle = (row, col) in self.CASTLE_POSITIONS
         return is_castle and self.get_piece(row, col) is None
 
-    def render(self, screen: pygame.Surface) -> None:
+    def render(self) -> None:
         light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
         light_tile.fill(LIGHT_TILE)
         dark_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
         dark_tile.fill(DARK_TILE)
 
+        board_display = self.game.board_display
+
         for row in range(self.height):
             for col in range(self.width):
                 if (row + col) % 2 == 0:
-                    screen.blit(light_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(light_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 else:
-                    screen.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 if (row, col) in self.CASTLE_POSITIONS:
-                    screen.blit(self.game.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(self.game.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
         for row in range(self.height):
             for col in range(self.width):
                 if self.board[row * self.width + col] is not None:
-                    self.board[row * self.width + col].render(screen)
+                    self.board[row * self.width + col].render(board_display)
 
         if self.selected_piece is not None:
-            pygame.draw.rect(screen, (0, 255, 0), (self.selected_piece.col * SQUARE_SIZE, self.selected_piece.row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
+            pygame.draw.rect(board_display, (0, 255, 0), (self.selected_piece.col * SQUARE_SIZE, self.selected_piece.row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
             for tile in self.selected_piece.legal_moves():
-                pygame.draw.rect(screen, (255, 0, 0), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
+                pygame.draw.rect(board_display, (255, 0, 0), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
 
         if self.winner is not None:
             text = "Blue wins" if self.winner == BLACK else "Red wins"
-            self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2, self.game.font_big)
+            self.game.draw_text(self.game.top_screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2, self.game.font_big)
         else:
             text = "Turn: " + ("Red" if self.turn == WHITE else "Blue")
             self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 56, self.game.font_small)
@@ -212,7 +214,7 @@ class Board:
             text = "Moves:"
             self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 24, self.game.font_small)
             surface = pygame.Surface((SIDE_PANEL, self.game.screen.get_height() // 2))
-            surface.fill((0, 0, 0))
+            surface.fill((30, 30, 30))
             for i, move in enumerate(self.list_of_moves):
                 text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
                 spacing = 8 + i * 24

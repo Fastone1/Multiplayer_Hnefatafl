@@ -18,14 +18,22 @@ class Game:
         self.size = (9, 9)
         self.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
         self.board_display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+        self.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
         pygame.display.set_caption("Hnefatafl")
         self.clock = pygame.time.Clock()
         self.running = True
 
         # State stack
-        self.state_stack: list[State] = [Title(self)]
-        self.load_initial_states()
-        self.actions = {"click": False, "right_click": False, "esc": False, "restart": False, "start": False}
+        self.state_stack: list[State] = [Title(self)]   # Start with the title screen
+        self.actions = {
+            "click": False,
+            "right_click": False,
+            "esc": False,
+            "restart": False, 
+            "start": False,
+            "exit": False,
+            "undo": False,
+        }
 
         # Connection
         #self.connection = Connection()
@@ -56,23 +64,14 @@ class Game:
 
     def run(self):
         while self.running:
-            self.screen.fill((0, 0, 0))
-
-            # Update
-            if self.board.winner is not None:
-                print(f'Winner: {"Blue" if self.board.winner == BLACK else "Red"}')
-                self.board.reset(9, 9)
-
-            # Render
-            self.board.render(self.board_display)
-            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.actions["esc"] = True
+                        self.actions["exit"] = True
+                        print("ESC")
 
                     if event.key == pygame.K_RETURN:
                         self.actions["start"] = True
@@ -85,7 +84,7 @@ class Game:
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
-                        self.actions["esc"] = False
+                        self.actions["exit"] = False
 
                     if event.key == pygame.K_RETURN:
                         self.actions["start"] = True
@@ -129,9 +128,12 @@ class Game:
                     if event.button == 3:
                         self.actions["right_click"] = False
 
-            self.screen.blit(pygame.transform.scale(self.board_display, (WIDTH, HEIGHT)), (0, 0))
+            # Update
+            self.update()
 
-            pygame.display.flip()
+            # Render
+            self.render()
+            
             self.clock.tick(60)
 
         pygame.quit()
@@ -141,17 +143,17 @@ class Game:
         self.state_stack[-1].update(self.actions)
 
     def render(self):
-        self.state_stack[-1].render(self.screen)
+        self.state_stack[-1].render()
+
+    def reset_keys(self):
+        for key in self.actions:
+            self.actions[key] = False
 
     def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):
         text_surf = font.render(text, True, color)
         text_rect = text_surf.get_rect()
         text_rect.center = (x, y)
         surf.blit(text_surf, text_rect)
-
-    def load_initial_states(self):
-        title_screen = Title(self)
-        title_screen.enter_state()
 
     def adjust_scroll_to_bottom(self):
         spacing = len(self.board.list_of_moves) * 24 - self.screen.get_height() // 2
