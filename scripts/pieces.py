@@ -41,12 +41,12 @@ class Piece:
             if piece.type == ROOK:
                 direction = (row - self.row, col - self.col)
                 opposite_piece = self.game.board.get_piece(row + direction[0], col + direction[1])
-                return (opposite_piece is not None and opposite_piece.color == self.color) or self.game.board.is_castle_empty(row + direction[0], col + direction[1])
+                return (opposite_piece is not None and opposite_piece.color == self.color) or self.game.board.is_empty_castle(row + direction[0], col + direction[1])
             elif piece.type == KING:
                 orthogonal = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                 orthogonal_pieces = [self.game.board.get_piece(row + dr, col + dc) for dr, dc in orthogonal]
                 return all((ortho_piece is not None and ortho_piece.color == BLACK) or \
-                           self.game.board.is_castle_empty(row + dr, col + dc) or \
+                           self.game.board.is_empty_castle(row + dr, col + dc) or \
                             (row + dr < 0 or row + dr >= self.game.board.height or col + dc < 0 or col + dc >= self.game.board.width) \
                             for ortho_piece, (dr, dc) in zip(orthogonal_pieces, orthogonal))
 
@@ -57,12 +57,7 @@ class Piece:
         if self.game.board.get_piece(row, col) is not None:
             return False
         
-        if self.type != KING and \
-            ((row == 0 and col == 0) or \
-             (row == 0 and col == self.game.board.width - 1) or \
-             (row == self.game.board.height - 1 and col == 0) or \
-             (row == self.game.board.height - 1 and col == self.game.board.width - 1) or \
-             (row == self.game.board.height // 2 and col == self.game.board.width // 2)):
+        if self.type != KING and (row, col) in self.game.board.CASTLE_POSITIONS:
             return False
         
         if row == self.row:
@@ -96,12 +91,12 @@ class Piece:
         screen.blit(asset, (x, y))
         
     def __repr__(self) -> str:
-        color = "White" if self.color == WHITE else "Black"
+        color = "Red" if self.color == WHITE else "Blue"
         type_p = "Rook" if self.type == ROOK else "King"
         return f"{color} {type_p} at ({self.row}, {self.col})"
     
     def __str__(self) -> str:
-        color = "White" if self.color == WHITE else "Black"
+        color = "Red" if self.color == WHITE else "Blue"
         type_p = "Rook" if self.type == ROOK else "King"
         return f"{color} {type_p} at ({self.row}, {self.col})"
     

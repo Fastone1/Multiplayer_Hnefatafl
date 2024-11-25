@@ -39,7 +39,8 @@ class Game:
             BLACK: {
                 ROOK: load_image("black_rook.png"),
             },
-            "mouse": load_image("mouse.png")
+            "mouse": load_image("mouse.png"),
+            "castle_tile": load_image("castle_tile.png"),
         }
 
         # Font
@@ -59,7 +60,7 @@ class Game:
 
             # Update
             if self.board.winner is not None:
-                print(f'Winner: {"Black" if self.board.winner == BLACK else "White"}')
+                print(f'Winner: {"Blue" if self.board.winner == BLACK else "Red"}')
                 self.board.reset(9, 9)
 
             # Render

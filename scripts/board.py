@@ -42,6 +42,9 @@ class Board:
         self.create_board(width, height)
         self.starting_position()
 
+        self.END_POSITIONS = [(0, 0), (0, self.width - 1), (self.height - 1, 0), (self.height - 1, self.width - 1)]
+        self.CASTLE_POSITIONS = [(0, 0), (0, self.width - 1), (self.height - 1, 0), (self.height - 1, self.width - 1), (self.height // 2, self.width // 2)]
+
     def create_board(self, size_width: int, size_height: int) -> None:
         for _ in range(size_height * size_width):
             self.board.append(None)
@@ -129,7 +132,7 @@ class Board:
             self.winner = BLACK
             return
 
-        if (king.row == 0 and king.col == 0) or (king.row == 0 and king.col == self.width - 1) or (king.row == self.height - 1 and king.col == 0) or (king.row == self.height - 1 and king.col == self.width - 1):
+        if (king.row, king.col) in self.END_POSITIONS:
             print("King in castle")
             self.winner = WHITE
             return
@@ -167,14 +170,12 @@ class Board:
                 squares.append((r, c))
         return squares
     
-    def is_castle_empty(self, row: int, col: int) -> bool:
-        topleft = row == 0 and col == 0
-        topright = row == 0 and col == self.width - 1
-        bottomleft = row == self.height - 1 and col == 0
-        bottomnright = row == self.height - 1 and col == self.width - 1
-        middle = row == self.height // 2 and col == self.width // 2
-
-        return (topleft or topright or bottomleft or bottomnright or middle) and self.get_piece(row, col) is None
+    def is_empty_castle(self, row: int, col: int) -> bool:
+        '''
+        Check if a square is a castle square and is empty
+        '''
+        is_castle = (row, col) in self.CASTLE_POSITIONS
+        return is_castle and self.get_piece(row, col) is None
 
     def render(self, screen: pygame.Surface) -> None:
         light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
@@ -188,6 +189,8 @@ class Board:
                     screen.blit(light_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 else:
                     screen.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                if (row, col) in self.CASTLE_POSITIONS:
+                    screen.blit(self.game.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
         for row in range(self.height):
             for col in range(self.width):
@@ -200,10 +203,10 @@ class Board:
                 pygame.draw.rect(screen, (255, 0, 0), (tile[1] * SQUARE_SIZE, tile[0] * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE), 1)
 
         if self.winner is not None:
-            text = "Black wins" if self.winner == BLACK else "White wins"
+            text = "Blue wins" if self.winner == BLACK else "Red wins"
             self.game.draw_text(screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2, self.game.font_big)
         else:
-            text = "Turn: " + ("White" if self.turn == WHITE else "Black")
+            text = "Turn: " + ("Red" if self.turn == WHITE else "Blue")
             self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 56, self.game.font_small)
             
             text = "Moves:"
