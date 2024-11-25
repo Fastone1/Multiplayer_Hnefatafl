@@ -17,7 +17,9 @@ class GameMain(State):
             print("GameMain -> Title")
 
         if actions["restart"]:
-            self.game.board.reset()
+            self.game.board.reset(9, 9)
+            self.game.board.deselect_piece()
+            self.scroll = 0
 
         if actions["undo"]:
             self.game.board.undo_move()

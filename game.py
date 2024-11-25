@@ -70,8 +70,7 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        self.actions["exit"] = True
-                        print("ESC")
+                        self.actions["esc"] = True
 
                     if event.key == pygame.K_RETURN:
                         self.actions["start"] = True
@@ -84,7 +83,7 @@ class Game:
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
-                        self.actions["exit"] = False
+                        self.actions["esc"] = False
 
                     if event.key == pygame.K_RETURN:
                         self.actions["start"] = True
