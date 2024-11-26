@@ -5,12 +5,18 @@ if TYPE_CHECKING:
 
 from states.state import State
 from states.game_main import GameMain
+from scripts.button import Button
 
 import pygame
 
 class Title(State):
     def __init__(self, game: Game):
         super().__init__(game)
+
+        self.buttons = [
+            Button("Local", 100, 200, 200, 50),
+            Button("Multiplayer", 100, 300, 200, 50),
+        ]
 
     def update(self):
         for event in pygame.event.get():
@@ -19,11 +25,7 @@ class Title(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.game.running = False
-                else:
-                    new_state = GameMain(self.game)
-                    new_state.enter_state()
-                    print("Title -> GameMain")
+                    self.exit_state()
 
             if event.type == pygame.MOUSEBUTTONUP:
                 new_state = GameMain(self.game)
@@ -35,6 +37,8 @@ class Title(State):
         surf.fill((30, 30, 30))
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (255, 255, 255), width // 2, height // 4, self.game.font_title)
-        self.game.draw_text(surf, "Press any key to start", (255, 255, 255), width // 2, height // 2 + 50, self.game.font_small)
+
+        for button in self.buttons:
+            button.render(surf)
 
         pygame.display.flip()

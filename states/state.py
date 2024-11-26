@@ -22,4 +22,7 @@ class State:
         self.game.state_stack.append(self)
 
     def exit_state(self):
-        self.game.state_stack.pop()            
+        if len(self.game.state_stack) > 1:
+            self.game.state_stack.pop()
+        else:
+            self.game.running = False         
