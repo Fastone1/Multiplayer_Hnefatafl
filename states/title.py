@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from game import Game
 
 from states.state import State
-from states.game_main import GameMain
+from states.choose_size import ChooseSize
 from scripts.button import Button
 
 import pygame
@@ -19,10 +19,7 @@ class Title(State):
         
         self.button_local = Button(self.game, (button_pos[0], button_pos[1]), True, "Local", self.game.font_small, button_size, button_color)
         self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), True, "Online", self.game.font_small, button_size, button_color)
-
-        self.button_9x9 = Button(self.game, (button_pos[0] // 2, button_pos[1]), True, "9x9", self.game.font_small, button_size, button_color)
-        self.button_11x11 = Button(self.game, (button_pos[0] // 2, button_pos[1]), True, "11x11", self.game.font_small, button_size, button_color)
-
+        
         self.choosing_size = False
         self.choosing_online = False
 
@@ -37,9 +34,9 @@ class Title(State):
                     print("Title -> Exit")
 
         if self.button_local.check_click():
-            game_main = GameMain(self.game)
+            game_main = ChooseSize(self.game)
             game_main.enter_state()
-            print("Title -> GameMain")
+            print("Title -> ChooseSize")
         
         if self.button_online.check_click():
             print("Title -> Online")

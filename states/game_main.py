@@ -4,15 +4,24 @@ if TYPE_CHECKING:
     from game import Game
 
 import pygame
-from scripts.constants import RENDER_SCALE, SQUARE_SIZE, WIDTH, HEIGHT
+from scripts.constants import RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT
 from states.state import State
 from scripts.board import Board
 
 class GameMain(State):
-    def __init__(self, game: Game):
+    def __init__(self, game: Game, width:int, height:int):
         super().__init__(game)
 
-        self.board = Board(self.game, 9, 9)
+        self.width = width * SQUARE_SIZE * RENDER_SCALE
+        self.height = height * SQUARE_SIZE * RENDER_SCALE
+        print(self.width, self.height)
+
+        self.game.screen = pygame.display.set_mode((self.width + SIDE_PANEL, self.height))
+        self.game.board_display = pygame.Surface((self.width // RENDER_SCALE, self.height // RENDER_SCALE))
+        self.game.top_screen = pygame.Surface((self.width + SIDE_PANEL, self.height), pygame.SRCALPHA)
+
+        self.scroll = 0
+        self.board = Board(self.game, width, height)
 
     def update(self):
         for event in pygame.event.get():
@@ -22,6 +31,9 @@ class GameMain(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
+                    self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
+                    self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
+                    self.game.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
                     print("GameMain -> Title")
 
                 if event.key == pygame.K_r:
@@ -48,13 +60,13 @@ class GameMain(State):
                     self.board.undo_move()
 
     def adjust_scroll_to_bottom(self):
-        spacing = len(self.board.list_of_moves) * 24 - HEIGHT // 2
+        spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height()
         if spacing > 0:
             self.scroll = -spacing
 
     def render(self):
         self.game.screen.fill((30, 30, 30))
         self.board.render()
-        self.game.screen.blit(pygame.transform.scale(self.game.board_display, (WIDTH, HEIGHT)), (0, 0))
+        self.game.screen.blit(pygame.transform.scale(self.game.board_display, (self.width, self.height)), (0, 0))
         self.game.screen.blit(self.game.top_screen, (0, 0))
         pygame.display.flip()
