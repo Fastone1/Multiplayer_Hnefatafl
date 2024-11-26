@@ -12,7 +12,7 @@ class Title(State):
     def __init__(self, game: Game):
         super().__init__(game)
 
-    def update(self, actions: dict[str, bool]):
+    def update(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.game.running = False

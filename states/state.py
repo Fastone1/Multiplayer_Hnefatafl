@@ -8,7 +8,7 @@ class State:
         self.game = game
         self.prev_state = None
 
-    def update(self, actions: dict[str, bool]):
+    def update(self):
         print("Update not implemented")
         pass
 

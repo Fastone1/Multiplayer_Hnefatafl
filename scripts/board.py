@@ -34,11 +34,23 @@ class Board:
         self.game = game
         self.width = width
         self.height = height
+
         self.turn = BLACK
         self.winner = None
         self.board: list[Piece] = []
         self.list_of_moves: list[Move] = []
         self.selected_piece: Piece = None
+
+        self.assets = {
+            WHITE: {
+                ROOK: pygame.transform.scale(game.assets[WHITE][ROOK], (SQUARE_SIZE, SQUARE_SIZE)),
+                KING: pygame.transform.scale(game.assets[WHITE][KING], (SQUARE_SIZE, SQUARE_SIZE))
+            },
+            BLACK: {
+                ROOK: pygame.transform.scale(game.assets[BLACK][ROOK], (SQUARE_SIZE, SQUARE_SIZE)),
+            },
+            "castle_tile": pygame.transform.scale(game.assets["castle_tile"], (SQUARE_SIZE, SQUARE_SIZE)),
+        }
         self.create_board(width, height)
         self.starting_position()
 
@@ -139,7 +151,7 @@ class Board:
 
     def starting_position(self) -> None:
         for row, col, color, type_p in STARTING_POSITIONS[f"{self.height}x{self.width}"]:
-            piece = Piece(self.game, row, col, color, type_p)
+            piece = Piece(self, row, col, color, type_p)
             self.set_piece(row, col, piece)
 
     def select_piece(self, piece):
@@ -192,7 +204,7 @@ class Board:
                 else:
                     board_display.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 if (row, col) in self.CASTLE_POSITIONS:
-                    board_display.blit(self.game.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(self.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
         for row in range(self.height):
             for col in range(self.width):

@@ -7,7 +7,6 @@ from scripts.constants import *
 # Utility functions
 from scripts.connection import Connection
 from scripts.util import load_image, set_cursor
-from scripts.board import Board
 from states.state import State
 from states.title import Title
 
@@ -25,15 +24,6 @@ class Game:
 
         # State stack
         self.state_stack: list[State] = [Title(self)]   # Start with the title screen
-        self.actions = {
-            "click": False,
-            "right_click": False,
-            "esc": False,
-            "restart": False, 
-            "start": False,
-            "exit": False,
-            "undo": False,
-        }
 
         # Connection
         #self.connection = Connection()
@@ -60,9 +50,6 @@ class Game:
         set_cursor(self.assets["mouse"])
         self.scroll = 0
 
-        # Board
-        self.board = Board(self, 9, 9)
-
     def run(self):
         while self.running:
             # Update
@@ -77,25 +64,16 @@ class Game:
         sys.exit()
 
     def update(self):
-        self.state_stack[-1].update(self.actions)
+        self.state_stack[-1].update()
 
     def render(self):
         self.state_stack[-1].render()
-
-    def reset_keys(self):
-        for key in self.actions:
-            self.actions[key] = False
 
     def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):
         text_surf = font.render(text, True, color)
         text_rect = text_surf.get_rect()
         text_rect.center = (x, y)
         surf.blit(text_surf, text_rect)
-
-    def adjust_scroll_to_bottom(self):
-        spacing = len(self.board.list_of_moves) * 24 - self.screen.get_height() // 2
-        if spacing > 0:
-            self.scroll = -spacing
 
 if __name__ == "__main__":
     game = Game()
