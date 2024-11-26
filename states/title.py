@@ -34,7 +34,7 @@ class Title(State):
         surf = self.game.screen
         surf.fill((30, 30, 30))
         width, height = surf.get_width(), surf.get_height()
-        self.game.draw_text(surf, "Hnefatafl", (255, 255, 255), width // 2, height // 2, self.game.font_big)
+        self.game.draw_text(surf, "Hnefatafl", (255, 255, 255), width // 2, height // 4, self.game.font_title)
         self.game.draw_text(surf, "Press any key to start", (255, 255, 255), width // 2, height // 2 + 50, self.game.font_small)
 
         pygame.display.flip()

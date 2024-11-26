@@ -52,6 +52,7 @@ class Game:
         }
 
         # Font
+        self.font_title = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 64)
         self.font_big = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 32)
         self.font_small = pygame.font.Font("assets/fonts/Grand9K_Pixel.ttf", 16)
 
