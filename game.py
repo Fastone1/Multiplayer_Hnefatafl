@@ -64,76 +64,13 @@ class Game:
 
     def run(self):
         while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.actions["esc"] = True
-
-                    if event.key == pygame.K_RETURN:
-                        self.actions["start"] = True
-
-                    if event.key == pygame.K_r:
-                        self.actions["restart"] = True
-                        self.board.reset(9, 9)
-                        self.board.deselect_piece()
-                        self.scroll = 0
-
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_ESCAPE:
-                        self.actions["esc"] = False
-
-                    if event.key == pygame.K_RETURN:
-                        self.actions["start"] = True
-
-                    if event.key == pygame.K_r:
-                        self.actions["restart"] = False
-                        
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        self.actions["click"] = True
-                        x, y = pygame.mouse.get_pos()
-                        x, y = x // RENDER_SCALE, y // RENDER_SCALE
-                        col = x // SQUARE_SIZE
-                        row = y // SQUARE_SIZE
-                        piece = self.board.get_piece(row, col)
-                        if piece is not None and piece.color == self.board.turn:
-                            self.board.deselect_piece()
-                            self.board.select_piece(piece)
-                        elif piece is None and self.board.selected_piece is not None:
-                            if self.board.move_piece(self.board.selected_piece, row, col):
-                                self.adjust_scroll_to_bottom()
-                            self.board.deselect_piece()
-
-                    if event.button == 3:
-                        self.actions["right_click"] = True
-                        self.board.deselect_piece()
-                        self.board.undo_move()
-
-                    if event.button == 4:
-                        self.scroll = min(0, self.scroll + 8)
-
-                    if event.button == 5:
-                        spacing = len(self.board.list_of_moves) * 24 - self.screen.get_height() // 2
-                        if spacing > 0:
-                            self.scroll = max(-spacing, self.scroll - 8)
-
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1:
-                        self.actions["click"] = False
-
-                    if event.button == 3:
-                        self.actions["right_click"] = False
-
             # Update
             self.update()
 
             # Render
             self.render()
             
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
         pygame.quit()
         sys.exit()
