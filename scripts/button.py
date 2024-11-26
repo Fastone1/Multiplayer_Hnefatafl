@@ -5,20 +5,22 @@ if TYPE_CHECKING:
 
 import pygame
 
-class Button(pygame.sprite.Sprite):
-    def __init__(self, game:Game, pos:tuple[int, int], image:pygame.Surface|None, single_click:bool, text:str=None) -> None:
+class Button():
+    def __init__(self, game:Game, pos:tuple[int, int], single_click:bool, text:str, font:pygame.font.Font, size:tuple[int, int] = (100, 50), color:tuple[int, int, int] = (50, 50, 50)) -> None:
         super().__init__()
         self.game = game
 
         self.text = text
-        self.image = image
-        if not image:
-            self.image = pygame.Surface((100, 50))
-            self.image.fill((50, 50, 50))
-            text:pygame.Surface = self.game.font_small.render(text, True, (255, 255, 255))
-            self.image.blit(text, (self.image.get_width() / 2 - text.get_width() / 2, self.image.get_height() / 2 - text.get_height() / 2))
+        self.size = size
+        self.color = color
+        self.anti_color = (255 - color[0], 255 - color[1], 255 - color[2])
 
-        self.rect = self.image.get_rect(topleft=pos)
+        self.image = pygame.Surface(size)
+        self.image.fill(color)
+        text:pygame.Surface = self.game.font_small.render(text, True, self.anti_color)
+        self.image.blit(text, (self.image.get_width() / 2 - text.get_width() / 2, self.image.get_height() / 2 - text.get_height() / 2))
+
+        self.rect = self.image.get_rect(center=pos)
         self.pos = pos
 
         self.single_click = single_click
@@ -26,8 +28,8 @@ class Button(pygame.sprite.Sprite):
 
     def change_text(self, text:str) -> None:
         self.text = text
-        self.image.fill((50, 50, 50))
-        text:pygame.Surface = self.game.font_small.render(text, True, (255, 255, 255))
+        self.image.fill(self.color)
+        text:pygame.Surface = self.game.font_small.render(text, True, self.anti_color)
         self.image.blit(text, (self.image.get_width() / 2 - text.get_width() / 2, self.image.get_height() / 2 - text.get_height() / 2))
 
     def check_click(self) -> None:
@@ -46,7 +48,7 @@ class Button(pygame.sprite.Sprite):
         return False
     
     def render(self, surf:pygame.Surface) -> None:
-        pygame.draw.rect(surf, (50, 50, 50), self.rect)
+        pygame.draw.rect(surf, self.color, self.rect)
         if self.image:
             surf.blit(self.image, self.rect.topleft)
-        pygame.draw.rect(surf, (200, 200, 200), self.rect, 2)
+        pygame.draw.rect(surf, self.anti_color, self.rect, 2)

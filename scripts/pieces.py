@@ -107,9 +107,9 @@ class Piece:
         return not self == other
     
 class Rook(Piece):
-    def __init__(self, game: Game, row: int, col: int, color: int):
-        super().__init__(game, row, col, color, ROOK)
+    def __init__(self, board: Board, row: int, col: int, color: int):
+        super().__init__(board, row, col, color, ROOK)
 
 class King(Piece):
-    def __init__(self, game: Game, row: int, col: int, color: int):
-        super().__init__(game, row, col, color, KING)
+    def __init__(self, board: Board, row: int, col: int, color: int):
+        super().__init__(board, row, col, color, KING)

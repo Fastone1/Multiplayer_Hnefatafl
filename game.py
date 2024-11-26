@@ -23,7 +23,7 @@ class Game:
         self.running = True
 
         # State stack
-        self.state_stack: list[State] = [Title(self)]   # Start with the title screen
+        self.state_stack: list[State] = []
 
         # Connection
         #self.connection = Connection()
@@ -49,6 +49,10 @@ class Game:
         # Cursor
         set_cursor(self.assets["mouse"])
         self.scroll = 0
+
+        # Initial state
+        title = Title(self)
+        title.enter_state()
 
     def run(self):
         while self.running:

@@ -13,10 +13,11 @@ class Title(State):
     def __init__(self, game: Game):
         super().__init__(game)
 
-        self.buttons = [
-            Button("Local", 100, 200, 200, 50),
-            Button("Multiplayer", 100, 300, 200, 50),
-        ]
+        button_pos = (self.game.screen.get_width() // 2, self.game.screen.get_height() // 2)
+        button_size = (200, 50)
+        button_color = (50, 50, 50)
+        self.button_local = Button(self.game, (button_pos[0], button_pos[1]), True, "Local", self.game.font_small, button_size, button_color)
+        self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), True, "Online", self.game.font_small, button_size, button_color)
 
     def update(self):
         for event in pygame.event.get():
@@ -26,11 +27,15 @@ class Title(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
+                    print("Title -> Exit")
 
-            if event.type == pygame.MOUSEBUTTONUP:
-                new_state = GameMain(self.game)
-                new_state.enter_state()
-                print("Title -> GameMain")
+        if self.button_local.check_click():
+            game_main = GameMain(self.game)
+            game_main.enter_state()
+            print("Title -> GameMain")
+        
+        if self.button_online.check_click():
+            print("Title -> Online")
     
     def render(self):
         surf = self.game.screen
@@ -38,7 +43,7 @@ class Title(State):
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (255, 255, 255), width // 2, height // 4, self.game.font_title)
 
-        for button in self.buttons:
-            button.render(surf)
+        self.button_local.render(surf)
+        self.button_online.render(surf)
 
         pygame.display.flip()
