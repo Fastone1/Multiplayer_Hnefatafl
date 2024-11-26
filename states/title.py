@@ -16,8 +16,15 @@ class Title(State):
         button_pos = (self.game.screen.get_width() // 2, self.game.screen.get_height() // 2)
         button_size = (200, 50)
         button_color = (50, 50, 50)
+        
         self.button_local = Button(self.game, (button_pos[0], button_pos[1]), True, "Local", self.game.font_small, button_size, button_color)
         self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), True, "Online", self.game.font_small, button_size, button_color)
+
+        self.button_9x9 = Button(self.game, (button_pos[0] // 2, button_pos[1]), True, "9x9", self.game.font_small, button_size, button_color)
+        self.button_11x11 = Button(self.game, (button_pos[0] // 2, button_pos[1]), True, "11x11", self.game.font_small, button_size, button_color)
+
+        self.choosing_size = False
+        self.choosing_online = False
 
     def update(self):
         for event in pygame.event.get():
@@ -41,7 +48,7 @@ class Title(State):
         surf = self.game.screen
         surf.fill((30, 30, 30))
         width, height = surf.get_width(), surf.get_height()
-        self.game.draw_text(surf, "Hnefatafl", (255, 255, 255), width // 2, height // 4, self.game.font_title)
+        self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 
         self.button_local.render(surf)
         self.button_online.render(surf)
