@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from game import Game
 
-from states.state import State
-from states.game_main import GameMain
-from scripts.button import Button
-
 import pygame
 
-class ChooseSize(State):
+from states.state import State
+from scripts.button import Button
+from states.host import HostState
+
+class HostJoinState(State):
     def __init__(self, game: Game):
         super().__init__(game)
 
@@ -17,13 +17,10 @@ class ChooseSize(State):
         button_size = (200, 50)
         button_color = (50, 50, 50)
 
-        self.button_9x9 = Button(self.game, (button_pos[0] * 3 // 5, button_pos[1]), False, "9x9", self.game.font_small, button_size, button_color)
-        self.button_11x11 = Button(self.game, (button_pos[0] * 7 // 5, button_pos[1]), False, "11x11", self.game.font_small, button_size, button_color)
+        self.button_host = Button(self.game, (button_pos[0] * 3 // 5, button_pos[1]), False, "Host", self.game.font_small, button_size, button_color)
+        self.button_join = Button(self.game, (button_pos[0] * 7 // 5, button_pos[1]), False, "Join", self.game.font_small, button_size, button_color)
 
         self.button_back = Button(self.game, (button_pos[0], button_pos[1] * 3 // 2), False, "Back", self.game.font_small, (100, 50), button_color)
-
-        self.choosing_size = False
-        self.choosing_online = False
 
     def update(self):
         for event in pygame.event.get():
@@ -33,32 +30,30 @@ class ChooseSize(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
-                    print("ChooseSize -> Title")
+                    print("HostJoin -> Title")
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    if self.button_9x9.check_click():
-                        game_main = GameMain(self.game, 9, 9)
-                        game_main.enter_state()
-                        print("ChooseSize -> GameMain")
+                    if self.button_host.check_click():
+                        host = HostState(self.game, 9, 9)
+                        host.enter_state()
+                        print("HostJoin -> Host")
 
-                    if self.button_11x11.check_click():
-                        game_main = GameMain(self.game, 11, 11)
-                        game_main.enter_state()
-                        print("ChooseSize -> GameMain")
+                    if self.button_join.check_click():
+                        print("HostJoin -> Join")
 
                     if self.button_back.check_click():
                         self.exit_state()
-                        print("ChooseSize -> Title")
-    
+                        print("HostJoin -> Title")
+
     def render(self):
         surf = self.game.screen
         surf.fill((30, 30, 30))
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 
-        self.button_9x9.render(surf)
-        self.button_11x11.render(surf)
+        self.button_host.render(surf)
+        self.button_join.render(surf)
 
         self.button_back.render(surf)
 

@@ -14,7 +14,6 @@ class GameMain(State):
 
         self.width = width * SQUARE_SIZE * RENDER_SCALE
         self.height = height * SQUARE_SIZE * RENDER_SCALE
-        print(self.width, self.height)
 
         self.game.screen = pygame.display.set_mode((self.width + SIDE_PANEL, self.height))
         self.game.board_display = pygame.Surface((self.width // RENDER_SCALE, self.height // RENDER_SCALE))

@@ -1,51 +1,140 @@
-import socket
+import socket, threading
+
 from sys import exit
+from struct import pack, unpack
+from scripts.constants import PORT, END_CONNECTION, MESSAGE_LENGTH
 
 class Connection:
     def __init__(self):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "127.0.0.1"
-        self.port = 5555
-        self.addr = (self.server, self.port)
-        self.connect()
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.END_CONNECTION = END_CONNECTION
 
-    def connect(self):
+    def send(self, msg:str, sock:socket.socket) -> None:
         try:
-            self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
-        except:
-            print("Error connecting to the server")
-            print("Closing the game...")
-            print("Please try again later")
-            self.client.close()
-            exit()
-
-    def send(self, data):
-        try:
-            length = str(len(data))
-            self.client.send(str.encode(length))
-            self.client.send(str.encode(data))
+            msg_len = len(msg)
+            send_len = pack('!I', msg_len)
+            sock.send(send_len)
+            sock.send(msg.encode())
         except socket.error as e:
-            print(e)
+            print(f'Send error: {e}')
 
-    def recv(self):
+    def recv(self, sock:socket.socket) -> str:
         try:
-            length = int(self.client.recv(2048).decode())
-            data = self.client.recv(length).decode()
-            return data
+            msg_len = unpack('!I', sock.recv(MESSAGE_LENGTH))[0]
+            return sock.recv(msg_len).decode()
         except socket.error as e:
-            print(e)
+            print(f'Recv error: {e}')
+    
+    def close(self):
+        print("Socket closed")
+        self.socket.close()
 
-class Server:
+class Client(Connection):
     def __init__(self):
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind(("0.0.0.0", 5555))
-        self.server.listen()
-        print("Waiting for connection...")
-        self.accept()
-        
-    def accept(self):
-        conn, addr = self.server.accept()
-        print(f"Connection from {addr}")
-        conn.send(str.encode("Connected"))
-        return conn
+        super().__init__()
+        self.servers_ip = self.search_server_ip()
+
+    def connect(self, server_id: int):
+        self.socket.connect((self.servers_ip[server_id], PORT))
+
+    def search_server_ip(self) -> list:
+        search_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        search_ip_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        search_ip_socket.settimeout(2)
+
+        server_address = ('255.255.255.255', 9434)
+        message = 'pfg_ip_broadcast_cl'
+
+        servers_ip = []
+
+        try:
+            while True:
+                # Send data
+                print('sending: ' + message)
+                sent = search_ip_socket.sendto(message.encode(), server_address)
+
+                # Receive response
+                print('waiting to receive')
+                data, server = search_ip_socket.recvfrom(4096)
+                if data.decode('UTF-8') == 'pfg_ip_response_serv':
+                    print('Received confirmation')
+                    print('Server ip: ' + str(server[0]) )
+                    servers_ip.append(server[0])
+                else:
+                    print('Verification failed')
+                
+                print('Trying again...')
+        except socket.timeout:
+            print('Timeout')
+            print('Servers found: ' + str(len(servers_ip) ) )
+        except Exception as e:
+            print('Error: ' + str(e) )
+            print("Try again")
+        finally:	
+            search_ip_socket.close()
+
+        return servers_ip
+
+class Server(Connection):
+    def __init__(self):
+        super().__init__()
+        self.socket.settimeout(1)
+        self.socket.bind(('0.0.0.0', PORT))
+        self.socket.listen()
+
+        self.conn = None
+        self.addr = None
+
+        self.accepting = True
+        self.thread_response = threading.Thread(target=self.respond_search_ip)
+        self.thread_response.start()
+        self.thread_accept = threading.Thread(target=self.accept_connection)
+        self.thread_accept.start()
+
+    def accept_connection(self) -> None:
+        while self.accepting:
+            try:
+                self.conn, self.addr = self.socket.accept()
+                print('Connected to', self.addr)
+            except socket.timeout:
+                pass
+            except OSError as e:
+                print(f'Error: {e}')
+                if self.conn is not None:
+                    self.conn.close()
+
+    def close_connection(self) -> None:
+        self.accepting = False
+        self.thread_response.join()
+        self.thread_accept.join()
+        self.socket.close()
+        if self.conn is not None:
+            self.conn.close()
+        print('Connection closed')
+
+    def respond_search_ip(self) -> None:
+        '''
+        Respond to a broadcast message from a client
+        '''
+        search_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        server_address = ('', 9434)
+        search_ip_socket.bind(server_address)
+        search_ip_socket.settimeout(1)
+
+        while self.conn is None and self.accepting:
+            try:
+                data, address = search_ip_socket.recvfrom(4096)
+                data = str(data.decode('UTF-8'))
+                print('Received ' + str(len(data)) + ' bytes from ' + str(address) )
+                print('Data:' + data)
+                
+                if data == 'pfg_ip_broadcast_cl':
+                    print('responding...')
+                    sent = search_ip_socket.sendto('pfg_ip_response_serv'.encode(), address)
+                    print('Sent confirmation back')
+            except socket.timeout:
+                pass
+            except Exception as e:
+                print('Error: ' + str(e))
+                print('Try again')
+        search_ip_socket.close()

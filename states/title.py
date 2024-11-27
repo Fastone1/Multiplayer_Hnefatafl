@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 from states.state import State
 from states.choose_size import ChooseSize
+from states.host_join import HostJoinState
 from scripts.button import Button
 
 import pygame
@@ -17,8 +18,8 @@ class Title(State):
         button_size = (200, 50)
         button_color = (50, 50, 50)
         
-        self.button_local = Button(self.game, (button_pos[0], button_pos[1]), True, "Local", self.game.font_small, button_size, button_color)
-        self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), True, "Online", self.game.font_small, button_size, button_color)
+        self.button_local = Button(self.game, (button_pos[0], button_pos[1]), False, "Local", self.game.font_small, button_size, button_color)
+        self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), False, "Online", self.game.font_small, button_size, button_color)
         
         self.choosing_size = False
         self.choosing_online = False
@@ -33,13 +34,17 @@ class Title(State):
                     self.exit_state()
                     print("Title -> Exit")
 
-        if self.button_local.check_click():
-            game_main = ChooseSize(self.game)
-            game_main.enter_state()
-            print("Title -> ChooseSize")
-        
-        if self.button_online.check_click():
-            print("Title -> Online")
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if self.button_local.check_click():
+                        game_main = ChooseSize(self.game)
+                        game_main.enter_state()
+                        print("Title -> ChooseSize")
+                    
+                    if self.button_online.check_click():
+                        host_join = HostJoinState(self.game)
+                        host_join.enter_state()
+                        print("Title -> Online")
     
     def render(self):
         surf = self.game.screen
