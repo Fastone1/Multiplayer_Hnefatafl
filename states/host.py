@@ -70,25 +70,31 @@ class HostState(State):
                     self.board.deselect_piece()
                     self.board.undo_move()
 
-        if self.server.conn is not None and self.board.turn != self.my_turn:
-            msg = self.server.recv(self.server.conn)
-            if msg == "reset":
-                if self.reset_proposed:
-                    self.board.reset(self.width // SQUARE_SIZE // RENDER_SCALE, self.height // SQUARE_SIZE // RENDER_SCALE)
-                    self.reset_proposed = [False, False]
-                    self.scroll = 0
-                    self.board.deselect_piece()
+        if self.server.conn is not None:
+            if self.board.turn != self.my_turn:
+                msg = self.server.recv(self.server.conn)
+                if msg == "reset":
+                    if self.reset_proposed:
+                        self.board.reset(self.width // SQUARE_SIZE // RENDER_SCALE, self.height // SQUARE_SIZE // RENDER_SCALE)
+                        self.reset_proposed = [False, False]
+                        self.scroll = 0
+                        self.board.deselect_piece()
+                    else:
+                        self.reset_proposed[1] = True
+                elif msg.startswith("move"):
+                    _, start_row, start_col, row, col = msg.split()
+                    start_row, start_col, row, col = int(start_row), int(start_col), int(row), int(col)
+                    piece = self.board.get_piece(start_row, start_col)
+                    self.board.move_piece(piece, row, col)
+                elif msg == "size":
+                    self.server.send(f"size {self.width // SQUARE_SIZE // RENDER_SCALE} {self.height // SQUARE_SIZE // RENDER_SCALE}", self.server.conn)
+                elif msg == END_CONNECTION:
+                    self.server.close_connection()
+                    self.close_state()
                 else:
-                    self.reset_proposed[1] = True
-            elif msg.startswith("move"):
-                _, start_row, start_col, row, col = msg.split()
-                start_row, start_col, row, col = int(start_row), int(start_col), int(row), int(col)
-                piece = self.board.get_piece(start_row, start_col)
-                self.board.move_piece(piece, row, col)
-            elif msg == "size":
-                self.server.send(f"size {self.width // SQUARE_SIZE // RENDER_SCALE} {self.height // SQUARE_SIZE // RENDER_SCALE}", self.server.conn)
-            elif msg == END_CONNECTION:
-                self.server.close_connection()
+                    pass
+            else:   # If it's my turn
+                self.server.send("null", self.server.conn)
 
     def adjust_scroll_to_bottom(self):
         spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height()
