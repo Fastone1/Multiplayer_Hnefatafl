@@ -62,10 +62,11 @@ class Client(Connection):
                 # Receive response
                 print('waiting to receive')
                 data, server = search_ip_socket.recvfrom(4096)
-                if data.decode('UTF-8') == 'pfg_ip_response_serv':
+                if data.decode('UTF-8') == 'pfg_ip_response_serv' and server[0] not in self.servers_ip:
                     print('Received confirmation')
                     print('Server ip: ' + str(server[0]) )
                     self.servers_ip.append(server[0])
+                    self.searching = False
                 else:
                     print('Verification failed')
                 
@@ -98,6 +99,7 @@ class Server(Connection):
         while self.accepting:
             try:
                 self.conn, self.addr = self.socket.accept()
+                self.accepting = False
                 print('Connected to', self.addr)
             except socket.timeout:
                 pass

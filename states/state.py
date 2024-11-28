@@ -9,11 +9,9 @@ class State:
         self.prev_state = None
 
     def update(self):
-        print("Update not implemented")
         pass
 
     def render(self):
-        print("Render not implemented")
         pass
 
     def enter_state(self):
