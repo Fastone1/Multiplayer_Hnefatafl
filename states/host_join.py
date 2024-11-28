@@ -8,6 +8,7 @@ import pygame
 from states.state import State
 from scripts.button import Button
 from states.host import HostState
+from states.join_choose_server import JoinChooseServerState
 
 class HostJoinState(State):
     def __init__(self, game: Game):
@@ -40,6 +41,8 @@ class HostJoinState(State):
                         print("HostJoin -> Host")
 
                     if self.button_join.check_click():
+                        join = JoinChooseServerState(self.game)
+                        join.enter_state()
                         print("HostJoin -> Join")
 
                     if self.button_back.check_click():

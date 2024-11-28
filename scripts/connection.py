@@ -25,17 +25,25 @@ class Connection:
         except socket.error as e:
             print(f'Recv error: {e}')
     
-    def close(self):
-        print("Socket closed")
+    def close_connection(self) -> None:
         self.socket.close()
 
 class Client(Connection):
     def __init__(self):
         super().__init__()
-        self.servers_ip = self.search_server_ip()
+        self.servers_ip = []
+        self.searching = True
+
+        self.thread_search = threading.Thread(target=self.search_server_ip)
+        self.thread_search.start()
 
     def connect(self, server_id: int):
         self.socket.connect((self.servers_ip[server_id], PORT))
+
+    def close_connection(self) -> None:
+        self.searching = False
+        self.thread_search.join()
+        self.socket.close()
 
     def search_server_ip(self) -> list:
         search_ip_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -45,10 +53,8 @@ class Client(Connection):
         server_address = ('255.255.255.255', 9434)
         message = 'pfg_ip_broadcast_cl'
 
-        servers_ip = []
-
-        try:
-            while True:
+        while self.searching:
+            try:
                 # Send data
                 print('sending: ' + message)
                 sent = search_ip_socket.sendto(message.encode(), server_address)
@@ -59,21 +65,18 @@ class Client(Connection):
                 if data.decode('UTF-8') == 'pfg_ip_response_serv':
                     print('Received confirmation')
                     print('Server ip: ' + str(server[0]) )
-                    servers_ip.append(server[0])
+                    self.servers_ip.append(server[0])
                 else:
                     print('Verification failed')
                 
                 print('Trying again...')
-        except socket.timeout:
-            print('Timeout')
-            print('Servers found: ' + str(len(servers_ip) ) )
-        except Exception as e:
-            print('Error: ' + str(e) )
-            print("Try again")
-        finally:	
-            search_ip_socket.close()
-
-        return servers_ip
+            except socket.timeout:
+                print('Timeout')
+                print('Servers found: ' + str(len(self.servers_ip) ) )
+            except Exception as e:
+                print('Error: ' + str(e) )
+                print("Try again")
+        search_ip_socket.close()
 
 class Server(Connection):
     def __init__(self):

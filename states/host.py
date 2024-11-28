@@ -36,17 +36,7 @@ class HostState(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.exit_state()
-                    self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
-                    self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
-                    self.game.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
-
-                    self.game.screen.fill((30, 30, 30))
-                    self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
-                    pygame.display.flip()
-
-                    self.server.close_connection()
-                    print("HostState -> Title")
+                    self.close_state()
 
                 if event.key == pygame.K_r:
                     if self.server.conn is not None:
@@ -94,13 +84,28 @@ class HostState(State):
                 start_row, start_col, row, col = int(start_row), int(start_col), int(row), int(col)
                 piece = self.board.get_piece(start_row, start_col)
                 self.board.move_piece(piece, row, col)
+            elif msg == "size":
+                self.server.send(f"size {self.width // SQUARE_SIZE // RENDER_SCALE} {self.height // SQUARE_SIZE // RENDER_SCALE}", self.server.conn)
             elif msg == END_CONNECTION:
-                self.server.close()
+                self.server.close_connection()
 
     def adjust_scroll_to_bottom(self):
         spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height()
         if spacing > 0:
             self.scroll = -spacing
+
+    def close_state(self):
+        self.exit_state()
+        self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
+        self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
+        self.game.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
+
+        self.game.screen.fill((30, 30, 30))
+        self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
+        pygame.display.flip()
+
+        self.server.close_connection()
+        print("HostState -> HostJoin")
 
     def render(self):
         self.game.screen.fill((30, 30, 30))
