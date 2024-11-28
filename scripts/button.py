@@ -47,8 +47,7 @@ class Button():
 
         return False
     
-    def render(self, surf:pygame.Surface) -> None:
-        pygame.draw.rect(surf, self.color, self.rect)
-        if self.image:
-            surf.blit(self.image, self.rect.topleft)
-        pygame.draw.rect(surf, self.anti_color, self.rect, 2)
+    def render(self, surf:pygame.Surface, offset:tuple[int, int] = (0, 0)) -> None:
+        pygame.draw.rect(surf, self.color, self.rect.move(offset))
+        surf.blit(self.image, self.rect.move(offset))
+        pygame.draw.rect(surf, self.anti_color, self.rect.move(offset), 2)
