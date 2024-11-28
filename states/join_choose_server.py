@@ -35,7 +35,7 @@ class JoinChooseServerState(State):
         if len(self.client.servers_ip) != self.servers_len:
             self.servers_len = 0
             for i, server in enumerate(self.client.servers_ip):
-                button = Button(self.game, (self.game.screen.get_width() // 2, self.game.screen.get_height() // 2 + i * 100), False, server, self.game.font_small, (200, 50), (50, 50, 50))
+                button = Button(self.game, (self.game.screen.get_width() // 2, self.game.screen.get_height() // 2 + i * 50), False, server, self.game.font_small, (200, 50), (50, 50, 50))
                 setattr(self, f"button_{i}", button)
                 self.servers_len += 1
         
@@ -47,7 +47,7 @@ class JoinChooseServerState(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.close_state()
-                    
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if self.button_back.check_click():
@@ -58,6 +58,11 @@ class JoinChooseServerState(State):
                             join = JoinState(self.game, self.client, i)
                             join.enter_state()
                             print(f"JoinChooseServer -> Join {i}")
+
+                if event.button == 4:
+                    self.scroll = min(self.scroll + 50, 0)
+                if event.button == 5:
+                    self.scroll = max(self.scroll - 50, -100 * (self.servers_len - 1))
 
     def close_state(self):
         self.exit_state()
@@ -77,7 +82,7 @@ class JoinChooseServerState(State):
         self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 
         for i in range(self.servers_len):
-            getattr(self, f"button_{i}").render(surf)
+            getattr(self, f"button_{i}").render(surf, offset=(0, self.scroll))
 
         self.button_back.render(surf)
 

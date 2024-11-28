@@ -7,7 +7,7 @@ import pygame
 
 from states.state import State
 from scripts.connection import Server
-from scripts.constants import RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT, END_CONNECTION
+from scripts.constants import RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT, END_CONNECTION, WHITE, BLACK
 from scripts.board import Board
 
 
@@ -27,6 +27,7 @@ class HostState(State):
 
         self.scroll = 0
         self.board = Board(self.game, width, height)
+        self.my_turn = WHITE
 
     def update(self):
         for event in pygame.event.get():
@@ -55,10 +56,10 @@ class HostState(State):
                     col = x // SQUARE_SIZE
                     row = y // SQUARE_SIZE
                     piece = self.board.get_piece(row, col)
-                    if piece is not None and piece.color == self.board.turn:
+                    if piece is not None and piece.color == self.my_turn:
                         self.board.deselect_piece()
                         self.board.select_piece(piece)
-                    elif piece is None and self.board.selected_piece is not None:
+                    elif piece is None and self.board.selected_piece is not None and self.board.turn == self.my_turn:
                         start_row, start_col = self.board.selected_piece.row, self.board.selected_piece.col
                         if self.board.move_piece(self.board.selected_piece, row, col):
                             if self.server.conn is not None:
@@ -69,7 +70,7 @@ class HostState(State):
                     self.board.deselect_piece()
                     self.board.undo_move()
 
-        if self.server.conn is not None:
+        if self.server.conn is not None and self.board.turn != self.my_turn:
             msg = self.server.recv(self.server.conn)
             if msg == "reset":
                 if self.reset_proposed:
