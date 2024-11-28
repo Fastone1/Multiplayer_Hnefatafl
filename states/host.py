@@ -70,6 +70,14 @@ class HostState(State):
                     self.board.deselect_piece()
                     self.board.undo_move()
 
+                if event.button == 4:
+                    self.board.scroll = min(0, self.board.scroll + 16)
+
+                if event.button == 5:
+                    spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height() // 2
+                    if spacing > 0:
+                        self.board.scroll = max(-spacing, self.board.scroll - 16)
+
         if self.server.conn is not None:
             if self.board.turn != self.my_turn:
                 msg = self.server.recv(self.server.conn)

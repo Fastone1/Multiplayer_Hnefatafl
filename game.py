@@ -48,7 +48,6 @@ class Game:
 
         # Cursor
         set_cursor(self.assets["mouse"])
-        self.scroll = 0
 
         # Initial state
         title = Title(self)

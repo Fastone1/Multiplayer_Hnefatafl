@@ -36,7 +36,6 @@ class JoinState(State):
         self.game.board_display = pygame.Surface((self.width // RENDER_SCALE, self.height // RENDER_SCALE))
         self.game.top_screen = pygame.Surface((self.width + SIDE_PANEL, self.height), pygame.SRCALPHA)
 
-        self.scroll = 0
         self.board = Board(self.game, width, height)
         self.my_turn = BLACK
         
@@ -57,7 +56,6 @@ class JoinState(State):
                     if self.reset_proposed[0] and self.reset_proposed[1]:
                         self.board.reset(self.width // SQUARE_SIZE // RENDER_SCALE, self.height // SQUARE_SIZE // RENDER_SCALE)
                         self.board.deselect_piece()
-                        self.scroll = 0
                         self.reset_proposed = [False, False]
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -80,6 +78,14 @@ class JoinState(State):
                 if event.button == 3:
                     self.board.deselect_piece()
                     self.board.undo_move()
+                    
+                if event.button == 4:
+                    self.board.scroll = min(0, self.board.scroll + 16)
+
+                if event.button == 5:
+                    spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height() // 2
+                    if spacing > 0:
+                        self.board.scroll = max(-spacing, self.board.scroll - 16)
 
         if self.client.socket is not None:
             if self.board.turn != self.my_turn:
@@ -88,7 +94,6 @@ class JoinState(State):
                     if self.reset_proposed:
                         self.board.reset(self.width // SQUARE_SIZE // RENDER_SCALE, self.height // SQUARE_SIZE // RENDER_SCALE)
                         self.reset_proposed = [False, False]
-                        self.scroll = 0
                         self.board.deselect_piece()
                     else:
                         self.reset_proposed[1] = True
@@ -106,11 +111,6 @@ class JoinState(State):
                     pass
             else:   # If it's my turn
                 self.client.send("null", self.client.socket)
-
-    def adjust_scroll_to_bottom(self):
-        spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height()
-        if spacing > 0:
-            self.scroll = -spacing
 
     def close_state(self):
         self.exit_state()

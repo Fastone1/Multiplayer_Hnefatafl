@@ -57,6 +57,8 @@ class Board:
         self.END_POSITIONS = [(0, 0), (0, self.width - 1), (self.height - 1, 0), (self.height - 1, self.width - 1)]
         self.CASTLE_POSITIONS = [(0, 0), (0, self.width - 1), (self.height - 1, 0), (self.height - 1, self.width - 1), (self.height // 2, self.width // 2)]
 
+        self.scroll = 0
+
     def create_board(self, size_width: int, size_height: int) -> None:
         for _ in range(size_height * size_width):
             self.board.append(None)
@@ -104,6 +106,9 @@ class Board:
 
         self.turn = not self.turn
         self.check_winner()
+        
+        self.adjust_scroll_to_bottom()
+
         return True
 
     def undo_move(self) -> None:
@@ -173,6 +178,7 @@ class Board:
         self.winner = None
         self.list_of_moves = []
         self.selected_piece = None
+        self.scroll = 0
 
     def adjacent_squares(self, row: int, col: int) -> list[tuple[int, int]]:
         squares = []
@@ -188,6 +194,11 @@ class Board:
         '''
         is_castle = (row, col) in self.CASTLE_POSITIONS
         return is_castle and self.get_piece(row, col) is None
+    
+    def adjust_scroll_to_bottom(self):
+        spacing = len(self.list_of_moves) * 24 - self.game.screen.get_height() // 2
+        if spacing > 0:
+            self.scroll = -spacing
 
     def render(self) -> None:
         light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
@@ -230,5 +241,5 @@ class Board:
             for i, move in enumerate(self.list_of_moves):
                 text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
                 spacing = 8 + i * 24
-                self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.game.scroll, self.game.font_small)
+                self.game.draw_text(surface, text, (255, 255, 255), SIDE_PANEL // 2, spacing + self.scroll, self.game.font_small)
             self.game.screen.blit(surface, (self.game.screen.get_width() - SIDE_PANEL, self.game.screen.get_height() // 2))

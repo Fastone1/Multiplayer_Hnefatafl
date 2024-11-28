@@ -19,7 +19,6 @@ class GameMain(State):
         self.game.board_display = pygame.Surface((self.width // RENDER_SCALE, self.height // RENDER_SCALE))
         self.game.top_screen = pygame.Surface((self.width + SIDE_PANEL, self.height), pygame.SRCALPHA)
 
-        self.scroll = 0
         self.board = Board(self.game, width, height)
 
     def update(self):
@@ -58,10 +57,13 @@ class GameMain(State):
                     self.board.deselect_piece()
                     self.board.undo_move()
 
-    def adjust_scroll_to_bottom(self):
-        spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height()
-        if spacing > 0:
-            self.scroll = -spacing
+                if event.button == 4:
+                    self.board.scroll = min(0, self.board.scroll + 16)
+
+                if event.button == 5:
+                    spacing = len(self.board.list_of_moves) * 24 - self.game.screen.get_height() // 2
+                    if spacing > 0:
+                        self.board.scroll = max(-spacing, self.board.scroll - 16)
 
     def render(self):
         self.game.screen.fill((30, 30, 30))
