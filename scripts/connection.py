@@ -1,13 +1,14 @@
 import socket, threading
 
 from sys import exit
-from struct import pack, unpack
+from struct import pack, unpack, error
 from scripts.constants import PORT, END_CONNECTION, MESSAGE_LENGTH
 
 class Connection:
     def __init__(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.END_CONNECTION = END_CONNECTION
+        self.connected = False
 
     def send(self, msg:str, sock:socket.socket) -> None:
         try:
@@ -24,6 +25,8 @@ class Connection:
             return sock.recv(msg_len).decode()
         except socket.error as e:
             print(f'Recv error: {e}')
+        except error as e:
+            print(f'Unpacking error: {e}')
     
     def close_connection(self) -> None:
         self.socket.close()
@@ -38,7 +41,10 @@ class Client(Connection):
         self.thread_search.start()
 
     def connect(self, server_id: int):
-        self.socket.connect((self.servers_ip[server_id], PORT))
+        if self.socket.connect_ex((self.servers_ip[server_id], PORT)) == 0:
+            self.connected = True
+        else:
+            print("Client connection failed")           
 
     def close_connection(self) -> None:
         self.searching = False
@@ -101,6 +107,7 @@ class Server(Connection):
                 self.conn, self.addr = self.socket.accept()
                 self.accepting = False
                 print('Connected to', self.addr)
+                self.connected = True
             except socket.timeout:
                 pass
             except OSError as e:

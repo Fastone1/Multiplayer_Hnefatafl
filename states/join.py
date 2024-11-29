@@ -74,6 +74,8 @@ class JoinState(State):
                             if self.client.socket is not None:
                                 self.client.send(f'move {start_row} {start_col} {row} {col}', self.client.socket)
                         self.board.deselect_piece()
+                    else:
+                        self.board.deselect_piece()
                     
                 if event.button == 4:
                     self.board.scroll = min(0, self.board.scroll + 16)
@@ -105,7 +107,7 @@ class JoinState(State):
                     self.client.send(f"size {self.width // SQUARE_SIZE // RENDER_SCALE} {self.height // SQUARE_SIZE // RENDER_SCALE}", self.client.socket)
                 elif msg == END_CONNECTION:
                     self.client.close_connection()
-                    self.close_state()
+                    self.exit_state()
                 else:
                     pass
             else:   # If it's my turn
@@ -121,6 +123,8 @@ class JoinState(State):
         self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
         pygame.display.flip()
 
+        if self.client.connected:
+            self.client.send(END_CONNECTION, self.client.socket)
         self.client.close_connection()
         print("HostState -> HostJoin")
 

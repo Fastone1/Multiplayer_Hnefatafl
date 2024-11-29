@@ -65,6 +65,8 @@ class HostState(State):
                             if self.server.conn is not None:
                                 self.server.send(f'move {start_row} {start_col} {row} {col}', self.server.conn)
                         self.board.deselect_piece()
+                    else:
+                        self.board.deselect_piece()
 
                 if event.button == 4:
                     self.board.scroll = min(0, self.board.scroll + 16)
@@ -97,7 +99,7 @@ class HostState(State):
                     self.server.send(f"size {self.width // SQUARE_SIZE // RENDER_SCALE} {self.height // SQUARE_SIZE // RENDER_SCALE}", self.server.conn)
                 elif msg == END_CONNECTION:
                     self.server.close_connection()
-                    self.close_state()
+                    self.exit_state()
                 else:
                     pass
             else:   # If it's my turn
@@ -109,6 +111,7 @@ class HostState(State):
             self.scroll = -spacing
 
     def close_state(self):
+        '''Close the connection, exit the state, and return to the HostJoin state.'''
         self.exit_state()
         self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
         self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
@@ -118,6 +121,8 @@ class HostState(State):
         self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
         pygame.display.flip()
 
+        if self.server.connected:
+            self.server.send(END_CONNECTION, self.server.conn)
         self.server.close_connection()
         print("HostState -> HostJoin")
 
