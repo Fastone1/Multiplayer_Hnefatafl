@@ -90,7 +90,10 @@ class JoinState(State):
         if self.client.socket is not None:
             if self.board.turn != self.my_turn:
                 msg = self.client.recv(self.client.socket)
-                if msg == "reset":
+                if msg is None:
+                    self.server.close_connection()
+                    self.close_state()
+                elif msg == "reset":
                     if self.reset_proposed:
                         self.board.reset(self.width // SQUARE_SIZE // RENDER_SCALE, self.height // SQUARE_SIZE // RENDER_SCALE)
                         self.reset_proposed = [False, False]

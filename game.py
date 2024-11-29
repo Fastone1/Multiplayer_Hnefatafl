@@ -25,9 +25,6 @@ class Game:
         # State stack
         self.state_stack: list[State] = []
 
-        # Connection
-        #self.connection = Connection()
-
         # Assets
         self.assets = {
             WHITE: {
