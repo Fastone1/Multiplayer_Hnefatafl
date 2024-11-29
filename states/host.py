@@ -66,10 +66,6 @@ class HostState(State):
                                 self.server.send(f'move {start_row} {start_col} {row} {col}', self.server.conn)
                         self.board.deselect_piece()
 
-                if event.button == 3:
-                    self.board.deselect_piece()
-                    self.board.undo_move()
-
                 if event.button == 4:
                     self.board.scroll = min(0, self.board.scroll + 16)
 

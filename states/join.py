@@ -74,10 +74,6 @@ class JoinState(State):
                             if self.client.socket is not None:
                                 self.client.send(f'move {start_row} {start_col} {row} {col}', self.client.socket)
                         self.board.deselect_piece()
-
-                if event.button == 3:
-                    self.board.deselect_piece()
-                    self.board.undo_move()
                     
                 if event.button == 4:
                     self.board.scroll = min(0, self.board.scroll + 16)
