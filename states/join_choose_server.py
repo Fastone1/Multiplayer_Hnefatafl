@@ -67,9 +67,7 @@ class JoinChooseServerState(State):
     def close_state(self):
         self.exit_state()
 
-        self.game.screen.fill((30, 30, 30))
-        self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
-        pygame.display.flip()
+        self.game.loading_screen()
 
         self.client.close_connection()
         print("JoinChooseServer -> HostJoin")

@@ -15,9 +15,9 @@ class JoinState(State):
     def __init__(self, game: Game, client: Client, server_id: int):
         super().__init__(game)
 
+        self.reset_proposed = [False, False]
         self.client = client
         self.client.connect(server_id)
-        self.reset_proposed = [False, False]
 
         self.client.send("size", self.client.socket)
         msg = self.client.recv(self.client.socket)
@@ -89,7 +89,7 @@ class JoinState(State):
             if self.board.turn != self.my_turn:
                 msg = self.client.recv(self.client.socket)
                 if msg is None:
-                    self.server.close_connection()
+                    self.client.close_connection()
                     self.close_state()
                 elif msg == "reset":
                     if self.reset_proposed:
@@ -119,9 +119,7 @@ class JoinState(State):
         self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
         self.game.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
 
-        self.game.screen.fill((30, 30, 30))
-        self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
-        pygame.display.flip()
+        self.game.loading_screen()
 
         if self.client.connected:
             self.client.send(END_CONNECTION, self.client.socket)

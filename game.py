@@ -75,6 +75,11 @@ class Game:
         text_rect.center = (x, y)
         surf.blit(text_surf, text_rect)
 
+    def loading_screen(self):
+        self.screen.fill((30, 30, 30))
+        self.draw_text(self.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.font_big)
+        pygame.display.flip()
+
 if __name__ == "__main__":
     game = Game()
     game.run()

@@ -117,9 +117,7 @@ class HostState(State):
         self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
         self.game.top_screen = pygame.Surface((WIDTH + SIDE_PANEL, HEIGHT), pygame.SRCALPHA)
 
-        self.game.screen.fill((30, 30, 30))
-        self.game.draw_text(self.game.screen, "Loading...", (205, 205, 205), (WIDTH + SIDE_PANEL) // 2, HEIGHT // 2, self.game.font_big)
-        pygame.display.flip()
+        self.game.loading_screen()
 
         if self.server.connected:
             self.server.send(END_CONNECTION, self.server.conn)

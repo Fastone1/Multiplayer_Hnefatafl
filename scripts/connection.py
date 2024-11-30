@@ -41,10 +41,13 @@ class Client(Connection):
         self.thread_search.start()
 
     def connect(self, server_id: int):
-        if self.socket.connect_ex((self.servers_ip[server_id], PORT)) == 0:
+        try:
+            self.socket.connect((self.servers_ip[server_id], PORT))
             self.connected = True
-        else:
-            print("Client connection failed")           
+            print('Connected to server')
+        except socket.error as e:
+            print(f'Error: {e}')
+            print('Failed to connect to server')
 
     def close_connection(self) -> None:
         self.searching = False
