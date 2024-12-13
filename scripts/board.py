@@ -128,6 +128,9 @@ class Board:
                 self.set_piece(captured_piece.row, captured_piece.col, captured_piece)
                 captured_piece.move(captured_piece.row, captured_piece.col)
 
+        if self.winner is not None:
+            self.winner = None
+
     def check_winner(self) -> None:
         king = None
         legal_moves = 0
