@@ -1,8 +1,3 @@
-import os
-from dotenv import load_dotenv
-load_dotenv()
-print("Loaded environment variables from .env file")
-
 SQUARE_SIZE = 16
 DISPLAY_WIDTH = 9 * SQUARE_SIZE
 DISPLAY_HEIGHT = 9 * SQUARE_SIZE
@@ -22,8 +17,8 @@ KING = 3
 DARK_TILE = (157, 90, 61)
 LIGHT_TILE = (244, 229, 166)
 
-PORT = int(os.getenv("SERVER_PORT", 8080))  # Default port set to 8080
-SERVER = os.getenv("SERVER_IP", "localhost")
+PORT = 42069
+SERVER = "151.16.174.60"
 ENCODER = "utf-8"
 END_CONNECTION = "!END!"
 MESSAGE_LENGTH = 4
