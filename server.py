@@ -83,7 +83,7 @@ def handle_client(conn: socket.socket, addr: tuple, board_id: int, size: int, pl
                 board.winner = 1 - currentId    # Set the winner to the other player
                 send(conns[f"player{1-currentId}_conn"], "win")   # Send win to the other player
             break
-        elif re.match(r"move \d \d \d \d", msg):
+        elif re.match(r"move [\d]{1,2} [\d]{1,2} [\d]{1,2} [\d]{1,2}", msg) is not None:
             start_row, start_col, row, col = map(int, msg.split()[1:])
             if board.move_piece(board.get_piece(start_row, start_col), row, col):
                 send(conns["player0_conn"], f"move {start_row} {start_col} {row} {col}")
@@ -114,7 +114,7 @@ def start():
             conn, addr = sock.accept()
 
             info = recv(conn)
-            if info is None or re.match(r"info \d [a-zA-Z0-9_]{1,16}", info) is None:
+            if info is None or re.match(r"info [\d]{1,2} [a-zA-Z0-9_]{1,16}", info) is None:
                 print("Error: info")
                 conn.close()
                 continue

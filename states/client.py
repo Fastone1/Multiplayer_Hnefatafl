@@ -91,7 +91,7 @@ class Client(State):
             if resp is None:
                 break
 
-            if re.match(r"move \d \d \d \d", resp):
+            if re.match(r"move [\d]{1,2} [\d]{1,2} [\d]{1,2} [\d]{1,2}", resp):
                 start_row, start_col, row, col = map(int, resp.split()[1:5])
                 if self.board.move_piece(self.board.get_piece(start_row, start_col), row, col):
                     print("Valid move")
