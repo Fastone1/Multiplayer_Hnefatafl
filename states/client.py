@@ -62,6 +62,8 @@ class Client(State):
             self.sock.connect((SERVER, PORT))
         except socket.error as e:
             print(f"Socket error: {e}")
+            self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
+            self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
             self.exit_state()
             return
         self.sock.settimeout(None)

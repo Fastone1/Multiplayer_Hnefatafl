@@ -15,7 +15,7 @@ try:
 except socket.error as e:
     print(str(e))
 
-sock.listen(2)
+sock.listen()
 print("[STARTING] Server is starting...")
 
 connections = 0
@@ -109,7 +109,7 @@ def handle_client(conn: socket.socket, addr: tuple, board_id: int, size: int, pl
 
 def start():
     while True:
-        if connections < 2:
+        if connections < 6:
             print("[WAITING FOR CONNECTIONS] Waiting for connections...")
             conn, addr = sock.accept()
 
@@ -123,9 +123,10 @@ def start():
             player_name = str(info.split(" ")[2])
 
             board_id = -1
-            for board_id in boards[size]:
-                if boards[size][board_id]["board"].ready == False:
-                    board_id = board_id
+            for id in boards[size]:
+                if boards[size][id]["board"].ready == False:
+                    print(f"[{addr}] Found board {id}")
+                    board_id = id
                     break
             
             if board_id == -1:
