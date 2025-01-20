@@ -7,7 +7,6 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 from scripts.constants import *
 
 # Utility functions
-from scripts.connection import Connection
 from scripts.util import load_image, set_cursor, load_font, load_sound, load_music
 from states.state import State
 from states.title import Title
