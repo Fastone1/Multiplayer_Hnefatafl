@@ -9,6 +9,10 @@ class Move:
         self.is_capture = False
         self.captured_pieces: list[Piece] = []
 
+    def __eq__(self, other: 'Move'):
+        assert isinstance(other, Move)
+        return self.from_row == other.from_row and self.from_col == other.from_col and self.to_row == other.to_row and self.to_col == other.to_col
+
     def __str__(self):
         return f"{chr(self.from_col + 97)}{-self.from_row + 9}-{chr(self.to_col + 97)}{-self.to_row + 9}{'x' + '/'.join([chr(piece.col + 97) + str(-piece.row + 9) for piece in self.captured_pieces]) if self.is_capture else ''}"
     
