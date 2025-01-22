@@ -99,6 +99,10 @@ class Board:
         self.check_winner()
 
         return True
+    
+    def move_piece_by_move(self, move: Move) -> bool:
+        piece = self.get_piece(move.from_row, move.from_col)
+        return self.move_piece(piece, move.to_row, move.to_col)
 
     def undo_move(self) -> None:
         if len(self.list_of_moves) == 0:
