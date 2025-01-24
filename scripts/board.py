@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE, SIDE_PANEL
+from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE, SIDE_PANEL, DEBUG
 from scripts.pieces import Piece
 from scripts.move import Move
 
@@ -68,19 +68,23 @@ class Board:
 
     def move_piece(self, piece: Piece, row: int, col: int) -> bool:
         if piece is None:
-            print("No piece selected")
+            if DEBUG:
+                print("No piece selected")
             return False
             
         if piece.color != self.turn:
-            print("Not your turn")
+            if DEBUG:
+                print("Not your turn")
             return False
         
         if self.winner is not None:
-            print("Game is over")
+            if DEBUG:
+                print("Game is over")
             return False
         
         if not piece.check_legal_move(row, col):
-            print("Illegal move")
+            if DEBUG:
+                print("Illegal move")
             return False
         
         self.set_piece(piece.row, piece.col, None)
@@ -136,17 +140,20 @@ class Board:
                     king = piece
 
         if legal_moves == 0:
-            print("No legal moves")
+            if DEBUG:
+                print("No legal moves")
             self.winner = BLACK if self.turn == WHITE else WHITE
             return
 
         if king is None:
-            print("No king")
+            if DEBUG:
+                print("King captured")
             self.winner = BLACK
             return
 
         if (king.row, king.col) in self.END_POSITIONS:
-            print("King in castle")
+            if DEBUG:
+                print("King in castle")
             self.winner = WHITE
             return
 
