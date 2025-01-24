@@ -23,4 +23,4 @@ ENCODER = "utf-8"
 END_CONNECTION = "!END!"
 MESSAGE_LENGTH = 4
 
-DEBUG = True
+DEBUG = False

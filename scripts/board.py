@@ -107,7 +107,24 @@ class Board:
     def move_piece_by_move(self, move: Move) -> bool:
         piece = self.get_piece(move.from_row, move.from_col)
         return self.move_piece(piece, move.to_row, move.to_col)
-
+    
+    def is_capture(self, from_row: int, from_col: int, to_row: int, to_col: int) -> bool:
+        piece = self.get_piece(from_row, from_col)
+        if piece is None:
+            return False
+        
+        if piece.color != self.turn:
+            return False
+        
+        for square in self.adjacent_squares(to_row, to_col):
+            if piece.check_capture(*square):
+                return True
+        
+        return False
+    
+    def move_is_capture(self, move: Move) -> bool:
+        return self.is_capture(move.from_row, move.from_col, move.to_row, move.to_col)
+    
     def undo_move(self) -> None:
         if len(self.list_of_moves) == 0:
             return
