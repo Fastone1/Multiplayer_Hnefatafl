@@ -20,9 +20,6 @@ class Title(State):
         
         self.button_local = Button(self.game, (button_pos[0], button_pos[1]), False, "Local", self.game.font_small, button_size, button_color)
         self.button_online = Button(self.game, (button_pos[0], button_pos[1] + 75), False, "Online", self.game.font_small, button_size, button_color)
-        
-        self.choosing_size = False
-        self.choosing_online = False
 
     def update(self):
         for event in pygame.event.get():
