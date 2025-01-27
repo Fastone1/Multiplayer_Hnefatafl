@@ -36,22 +36,21 @@ class AIMode(State):
             self.board.player1 = "Bot (Blue)"
             self.board.player2 = "Player (Red)"
 
+        self.bot_start_countdown = 30
+
         self.bot_thread = threading.Thread(target=self.bot_play)
         self.bot_thread.start()
 
     def bot_play(self):
         while self.board.winner is None:
-            if self.board.turn == self.bot.color:
-                print(f'Starting board:\n{self.bot.board}\n----------------')
+            if self.board.turn == self.bot.color and self.bot_start_countdown == 0:
                 move = self.bot.get_move()
-                if not self.bot.board.move_piece_by_move(move):
-                    print("Bot failed to move (Bot)")
-                if not self.board.move_piece_by_move(move):
-                    print("Bot failed to move (Player)")
-                print(self.bot.board, "\n----------------\n", self.board, "\n\n")
-                print("Bot moved")
+                self.bot.board.move_piece_by_move(move)
+                self.board.move_piece_by_move(move)
 
     def update(self):
+        self.bot_start_countdown = max(0, self.bot_start_countdown - 1)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.game.running = False
@@ -88,14 +87,11 @@ class AIMode(State):
                             move = Move(self.board.selected_piece.row, self.board.selected_piece.col, row, col)
                             self.bot.board.move_piece_by_move(move)
                             self.board.move_piece_by_move(move)
-                            print(self.bot.board)
-                            print("----------------")
-                            print(self.board)
-                            print("Player moved")
                         self.board.deselect_piece()
 
                 if event.button == 3:
                     self.board.deselect_piece()
+                    self.bot_start_countdown = 90
                     self.bot.board.undo_move()
                     self.board.undo_move()
 

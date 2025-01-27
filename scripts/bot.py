@@ -31,15 +31,15 @@ PST = {
             [0, 50, 50, 50, 50, 50, 50, 50, 0]
         ],
         KING: [
-            [MATE_SCORE, 200, 100, 50, 50, 50, 100, 200, MATE_SCORE],
-            [200, 50, 0, 0, 0, 0, 0, 50, 200],
-            [100, 0, 0, 0, 0, 0, 0, 0, 100],
-            [50, 0, 0, 0, 0, 0, 0, 0, 50],
-            [50, 0, 0, 0, 0, 0, 0, 0, 50],
-            [50, 0, 0, 0, 0, 0, 0, 0, 50],
-            [100, 0, 0, 0, 0, 0, 0, 0, 100],
-            [200, 50, 0, 0, 0, 0, 0, 50, 200],
-            [MATE_SCORE, 200, 100, 50, 50, 50, 100, 200, MATE_SCORE]
+            [MATE_SCORE, 1000, 200, 200, 200, 200, 200, 1000, MATE_SCORE],
+            [1000, 50, 0, 0, 0, 0, 0, 50, 1000],
+            [200, 0, 0, 0, 0, 0, 0, 0, 200],
+            [200, 0, 0, 0, 0, 0, 0, 0, 200],
+            [200, 0, 0, 0, 0, 0, 0, 0, 200],
+            [200, 0, 0, 0, 0, 0, 0, 0, 200],
+            [200, 0, 0, 0, 0, 0, 0, 0, 200],
+            [1000, 50, 0, 0, 0, 0, 0, 50, 1000],
+            [MATE_SCORE, 1000, 200, 200, 200, 200, 200, 1000, MATE_SCORE]
         ]
     },
     BLACK: {
@@ -89,10 +89,6 @@ def generate_interesting_moves(board: Board) -> list[Move]:
                 moves.append(move)
     return moves
 
-def order_moves(moves: list[Move]) -> list[Move]:
-    capture_moves = [move for move in moves if move.is_capture]
-    non_capture_moves = [move for move in moves if not move.is_capture]
-    return capture_moves + non_capture_moves
 
 class Bot():
     def __init__(self, size: int, color: int) -> None:
@@ -104,6 +100,19 @@ class Bot():
         self.numpos = 0
         self.start_time = 0
         self.cur_max_depth = 0
+    
+    def order_moves(self, moves: list[Move]) -> list[Move]:
+        capture_moves = []
+        non_capture_moves = []
+        king_on_edge_moves = []
+        for move in moves:
+            if self.board.move_is_capture(move):
+                capture_moves.append(move)
+            elif self.board.move_is_to_edge(move):
+                king_on_edge_moves.append(move)
+            else:
+                non_capture_moves.append(move)
+        return king_on_edge_moves + capture_moves + non_capture_moves
     
     def distance_to_center(self, row: int, col: int) -> int:
         return abs(row - self.board.height // 2) + abs(col - self.board.width // 2)
@@ -127,13 +136,15 @@ class Bot():
             # score += PST[piece.color][piece.type][piece.row][piece.col] * multiplier
 
             if piece.type == KING:
-                king_distance = self.distance_to_center(piece.row, piece.col)
-                if king_distance == 7 and not self.are_there_adj_enemies(piece.row, piece.col):
-                    return (MATE_SCORE - self.cur_max_depth) * multiplier
-                score += king_distance * 50 * multiplier
+                # add distance to center to encourage king to move to the corners
+                score += PST[piece.color][KING][piece.row][piece.col] * multiplier
 
+                # add king moves to encourage king to move
                 king_moves = len(piece.legal_moves())
-                score += king_moves * 10 * multiplier
+                score += king_moves * 20 * multiplier
+
+                # add king access to edge to encourage defending team to restrict king's movement to the edge
+                
 
         return score
     
@@ -212,7 +223,7 @@ class Bot():
             return self.quiesce(alpha, beta)
         
         legal_moves = generate_moves(self.board)
-        legal_moves = order_moves(legal_moves)
+        legal_moves = self.order_moves(legal_moves)
         
         best_move_value = -INF
         for move in legal_moves:
@@ -245,7 +256,7 @@ class Bot():
         beta = INF
 
         legal_moves = generate_moves(self.board)
-        legal_moves = order_moves(legal_moves)
+        legal_moves = self.order_moves(legal_moves)
         if ex_best_move is not None:
             legal_moves.remove(ex_best_move)
             legal_moves.insert(0, ex_best_move)
@@ -282,6 +293,7 @@ class Bot():
                 break
             eval, move = self.root_move(cur_depth, best_move)
 
+            print(f"Depth: {cur_depth}, Eval: {eval}, Move: {move}, Numpos: {self.numpos}")
             if move is not None:
                 best_eval, best_move = eval, move
             else:
