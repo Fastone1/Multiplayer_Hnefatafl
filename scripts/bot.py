@@ -4,7 +4,6 @@ from scripts.constants import KING, ROOK, BLACK, WHITE, DEBUG
 
 import time
 import random
-from functools import lru_cache
 from typing import Literal
 
 INF = float('inf')
