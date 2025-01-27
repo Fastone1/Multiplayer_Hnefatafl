@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from game import Game
 
 from states.state import State
-from states.choose_size import ChooseSize
+from states.local_mode import LocalMode
 from states.online_mode import OnlineMode
 from scripts.button import Button
 
@@ -34,9 +34,9 @@ class Title(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if self.button_local.check_click():
-                        choose_size = ChooseSize(self.game)
+                        choose_size = LocalMode(self.game)
                         choose_size.enter_state()
-                        print("Title -> ChooseSize")
+                        print("Title -> LocalMode")
                     
                     if self.button_online.check_click():
                         online_mode = OnlineMode(self.game)

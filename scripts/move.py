@@ -1,5 +1,7 @@
 from scripts.pieces import Piece
 
+import re
+
 class Move:
     def __init__(self, from_row: int, from_col: int, to_row: int, to_col: int):
         self.from_row = from_row
@@ -19,7 +21,10 @@ class Move:
     def __repr__(self):
         return f"Move from ({self.from_row}, {self.from_col}) to ({self.to_row}, {self.to_col}) with captures: {self.captured_pieces}"
     
-def parse_move(move: str) -> Move:
+def parse_move_9x9(move: str) -> Move:
+    if re.match(r"[a-h][1-9][a-h][1-9]", move) is None:
+        raise ValueError("Invalid move format")
+
     move = move.lower()
     from_row = 9 - int(move[1])
     from_col = ord(move[0]) - 97
