@@ -1,6 +1,6 @@
 from scripts.board import Board
 from scripts.move import Move
-from scripts.constants import KING, ROOK, BLACK, WHITE
+from scripts.constants import KING, ROOK, BLACK, WHITE, DEBUG
 
 import time
 import random
@@ -293,7 +293,8 @@ class Bot():
                 break
             eval, move = self.root_move(cur_depth, best_move)
 
-            print(f"Depth: {cur_depth}, Eval: {eval}, Move: {move}, Numpos: {self.numpos}")
+            if DEBUG:
+                print(f"Depth: {cur_depth}, Eval: {eval}, Move: {move}, Numpos: {self.numpos}")
             if move is not None:
                 best_eval, best_move = eval, move
             else:
