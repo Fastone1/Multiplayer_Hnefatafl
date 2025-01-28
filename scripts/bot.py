@@ -95,6 +95,7 @@ class Bot():
         self.color = color
 
         self.transposition_table = {}
+        self.board_states = {}
 
         self.numpos = 0
         self.start_time = 0
@@ -198,6 +199,12 @@ class Bot():
     def negamax(self, depth: int, alpha: int, beta: int) -> int:
         if time.time() - self.start_time > MAX_TIME_PER_MOVE:
             return None
+        
+        board_hash = hash(self.board)
+        num_occurrences = self.board_states.get(board_hash, 0)
+        if num_occurrences >= 5:
+            return -INF if self.board.turn == self.color else INF
+        self.board_states[board_hash] = num_occurrences + 1
         
         alpha_orig = alpha
 
