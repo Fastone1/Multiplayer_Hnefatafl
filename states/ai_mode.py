@@ -84,7 +84,7 @@ class AIMode(State):
                         self.board.select_piece(piece)
                     elif piece is None and self.board.selected_piece is not None:
                         if self.board.turn != self.bot.color:
-                            move = Move(self.board.selected_piece.row, self.board.selected_piece.col, row, col)
+                            move = Move(self.board.selected_piece.row, self.board.selected_piece.col, row, col, self.board.height)
                             self.bot.board.move_piece_by_move(move)
                             self.board.move_piece_by_move(move)
                         self.board.deselect_piece()

@@ -165,7 +165,7 @@ class Board:
         
         self.set_piece(piece.row, piece.col, None)
         self.set_piece(row, col, piece)
-        self.list_of_moves.append(Move(piece.row, piece.col, row, col))
+        self.list_of_moves.append(Move(piece.row, piece.col, row, col, self.height))
         piece.move(row, col)
 
         for square in self.adjacent_squares(row, col):
