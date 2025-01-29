@@ -7,6 +7,7 @@ from states.state import State
 from states.local_mode import LocalMode
 from states.online_mode import OnlineMode
 from scripts.button import Button
+from scripts.constants import BACKGROUND
 
 import pygame
 
@@ -48,7 +49,7 @@ class Title(State):
     
     def render(self):
         surf = self.game.screen
-        surf.fill((30, 30, 30))
+        surf.fill(BACKGROUND)
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 

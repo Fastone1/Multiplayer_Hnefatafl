@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 import pygame
 
-from scripts.constants import SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE, SIDE_PANEL, DEBUG
+from scripts.constants import BACKGROUND, SQUARE_SIZE, WHITE, BLACK, ROOK, KING, DARK_TILE, LIGHT_TILE, SIDE_PANEL, DEBUG
 from scripts.pieces import Piece
 from scripts.move import Move
 
@@ -408,7 +408,7 @@ class VisualBoard(Board):
             text = "Moves:"
             self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, self.game.screen.get_height() // 2 - 24, self.game.font_small)
             surface = pygame.Surface((SIDE_PANEL, self.game.screen.get_height() // 2))
-            surface.fill((30, 30, 30))
+            surface.fill(BACKGROUND)
             for i, move in enumerate(self.list_of_moves):
                 text = f"{i // 2 + 1}. {move}," if i % 2 == 0 else f"{move}"
                 spacing = 8 + i * 24

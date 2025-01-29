@@ -7,6 +7,7 @@ from states.state import State
 from states.choose_size import ChooseSize
 from states.ai_mode import AIMode
 from scripts.button import Button
+from scripts.constants import BACKGROUND
 
 import pygame
 
@@ -55,7 +56,7 @@ class LocalMode(State):
 
     def render(self):
         surf = self.game.screen
-        surf.fill((30, 30, 30))
+        surf.fill(BACKGROUND)
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 

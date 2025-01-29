@@ -25,6 +25,9 @@ class Game:
         # Error handling
         self.error = 0
         self.error_msg = ""
+        self.error_surf = pygame.Surface((150, 40))
+        self.error_surf.fill((30, 30, 30))
+        self.error_surf.set_alpha(200)
 
         # State stack
         self.state_stack: list[State] = []
@@ -84,6 +87,11 @@ class Game:
 
     def render(self):
         self.state_stack[-1].render()
+
+        if self.error > 0:
+            self.error -= max(1, (6000 - self.error) ** 2 // 10000)
+
+            
         pygame.display.flip()
 
     def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):

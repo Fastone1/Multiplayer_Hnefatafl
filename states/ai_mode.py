@@ -8,7 +8,7 @@ import threading
 import random
 
 from scripts.bot import Bot
-from scripts.constants import RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT, WHITE, BLACK
+from scripts.constants import BACKGROUND, RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT, WHITE, BLACK
 from states.state import State
 from scripts.board import VisualBoard
 from scripts.move import Move
@@ -104,7 +104,7 @@ class AIMode(State):
                         self.board.scroll = max(-spacing, self.board.scroll - 16)
 
     def render(self):
-        self.game.screen.fill((30, 30, 30))
+        self.game.screen.fill(BACKGROUND)
         self.board.render()
         self.game.screen.blit(pygame.transform.scale(self.game.board_display, (self.width, self.height)), (0, 0))
 

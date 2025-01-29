@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 from states.state import State
 from states.client import Client
 from scripts.button import Button
+from scripts.constants import BACKGROUND
 
 import pygame
 import socket
@@ -27,7 +28,7 @@ class OnlineMode(State):
         self.name = ""
         self.name_warning = 0
         self.name_warning_surf = pygame.Surface((150, 40))
-        self.name_warning_surf.fill((30, 30, 30))
+        self.name_warning_surf.fill(BACKGROUND)
         self.name_warning_surf.set_alpha(0)
 
         self.input_box = pygame.Rect(self.game.screen.get_width() // 2 - 150, self.game.screen.get_height() // 2 + 75, 300, 50)
@@ -116,7 +117,7 @@ class OnlineMode(State):
     
     def render(self):
         surf = self.game.screen
-        surf.fill((30, 30, 30))
+        surf.fill(BACKGROUND)
         width, height = surf.get_width(), surf.get_height()
         self.game.draw_text(surf, "Hnefatafl", (205, 205, 205), width // 2, height // 4, self.game.font_title)
 

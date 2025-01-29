@@ -12,7 +12,7 @@ from struct import pack, unpack, error
 
 from states.state import State
 from scripts.board import VisualBoard
-from scripts.constants import SERVER, PORT, END_CONNECTION, MESSAGE_LENGTH, ENCODER, BLACK, SIDE_PANEL, WIDTH, HEIGHT, RENDER_SCALE, SQUARE_SIZE
+from scripts.constants import BACKGROUND, SERVER, PORT, END_CONNECTION, MESSAGE_LENGTH, ENCODER, BLACK, SIDE_PANEL, WIDTH, HEIGHT, RENDER_SCALE, SQUARE_SIZE
 
 def send(conn: socket.socket, msg: str) -> None:
     try:
@@ -179,7 +179,7 @@ class Client(State):
             self.game.loading_screen()
             return
 
-        self.game.screen.fill((30, 30, 30))
+        self.game.screen.fill(BACKGROUND)
         self.board.render()
 
         if self.board.winner is None:

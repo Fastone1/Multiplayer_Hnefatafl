@@ -4,7 +4,7 @@ if TYPE_CHECKING:
     from game import Game
 
 import pygame
-from scripts.constants import RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT
+from scripts.constants import BACKGROUND, RENDER_SCALE, SQUARE_SIZE, SIDE_PANEL, WIDTH, HEIGHT
 from states.state import State
 from scripts.board import VisualBoard
 
@@ -68,7 +68,7 @@ class GameMain(State):
                         self.board.scroll = max(-spacing, self.board.scroll - 16)
 
     def render(self):
-        self.game.screen.fill((30, 30, 30))
+        self.game.screen.fill(BACKGROUND)
         self.board.render()
         self.game.screen.blit(pygame.transform.scale(self.game.board_display, (self.width, self.height)), (0, 0))
 
