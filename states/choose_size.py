@@ -62,5 +62,3 @@ class ChooseSize(State):
         self.button_11x11.render(surf)
 
         self.button_back.render(surf)
-
-        pygame.display.flip()

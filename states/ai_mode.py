@@ -116,4 +116,3 @@ class AIMode(State):
 
         text = "Press ESC to go back"
         self.game.draw_text(self.game.screen, text, (255, 255, 255), self.game.screen.get_width() - SIDE_PANEL // 2, 96, self.game.font_small)
-        pygame.display.flip()

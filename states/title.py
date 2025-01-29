@@ -55,4 +55,4 @@ class Title(State):
         self.button_local.render(surf)
         self.button_online.render(surf)
 
-        pygame.display.flip()
+        

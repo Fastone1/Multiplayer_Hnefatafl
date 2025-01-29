@@ -135,4 +135,4 @@ class OnlineMode(State):
         pygame.draw.rect(surf, (255, 255, 255), self.input_box, 2, 10)
         self.game.draw_text(surf, self.name, (255, 255, 255), self.input_box.centerx, self.input_box.centery, self.game.font_small)
 
-        pygame.display.flip()
+        

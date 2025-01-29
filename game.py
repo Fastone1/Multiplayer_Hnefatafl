@@ -22,6 +22,10 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        # Error handling
+        self.error = 0
+        self.error_msg = ""
+
         # State stack
         self.state_stack: list[State] = []
 
@@ -80,6 +84,7 @@ class Game:
 
     def render(self):
         self.state_stack[-1].render()
+        pygame.display.flip()
 
     def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):
         text_surf = font.render(text, True, color)

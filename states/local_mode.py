@@ -63,4 +63,4 @@ class LocalMode(State):
         self.button_bot.render(surf)
         self.button_back.render(surf)
 
-        pygame.display.flip()
+        

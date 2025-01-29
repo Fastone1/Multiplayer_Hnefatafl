@@ -9,10 +9,10 @@ class State:
         self.prev_state = None
 
     def update(self):
-        pass
+        raise NotImplementedError
 
     def render(self):
-        pass
+        raise NotImplementedError
 
     def enter_state(self):
         if len(self.game.state_stack) > 1:
