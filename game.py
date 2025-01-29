@@ -17,7 +17,7 @@ class Game:
         pygame.init()
         self.size = (9, 9)
         self.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
-        self.board_display = pygame.Surface((DISPLAY_WIDTH, DISPLAY_HEIGHT))
+        self.board_display = pygame.Surface((DISPLAY_WIDTH // RENDER_SCALE, DISPLAY_HEIGHT // RENDER_SCALE))
         pygame.display.set_caption("Hnefatafl")
         self.clock = pygame.time.Clock()
         self.running = True
@@ -25,8 +25,8 @@ class Game:
         # Error handling
         self.error = 0
         self.error_msg = ""
-        self.error_surf = pygame.Surface((150, 40))
-        self.error_surf.fill((30, 30, 30))
+        self.error_surf = pygame.Surface((self.screen.get_width() // 2, 40))
+        self.error_surf.fill(BACKGROUND)
         self.error_surf.set_alpha(200)
 
         # State stack
@@ -90,9 +90,25 @@ class Game:
 
         if self.error > 0:
             self.error -= max(1, (6000 - self.error) ** 2 // 10000)
-
-            
+            self.error_surf.set_alpha(int(255 * (self.error / 6000)))
+            self.draw_text(self.error_surf, self.error_msg, (245, 40, 30), self.error_surf.get_width() // 2, self.error_surf.get_height() // 2, self.font_small)
+            self.screen.blit(self.error_surf, (self.screen.get_width() // 2 - self.error_surf.get_width() // 2, self.screen.get_height() // 2 - self.error_surf.get_height() // 2 - 50))
+    
         pygame.display.flip()
+
+    def reset_screen(self):
+        self.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
+        self.board_display = pygame.Surface((DISPLAY_WIDTH // RENDER_SCALE, DISPLAY_HEIGHT // RENDER_SCALE))
+
+    def reset_error(self):
+        self.error = 0
+        self.error_msg = ""
+        self.error_surf.fill(BACKGROUND)
+
+    def show_error(self, msg: str):
+        self.reset_error()
+        self.error = 6000
+        self.error_msg = msg
 
     def draw_text(self, surf: pygame.Surface, text: str, color: tuple[int, int, int], x: int, y: int, font: pygame.font.Font):
         text_surf = font.render(text, True, color)
@@ -101,7 +117,7 @@ class Game:
         surf.blit(text_surf, text_rect)
 
     def loading_screen(self):
-        self.screen.fill((30, 30, 30))
+        self.screen.fill(BACKGROUND)
         self.draw_text(self.screen, "Loading...", (205, 205, 205), self.screen.get_width() // 2, self.screen.get_height() // 2, self.font_big)
         pygame.display.flip()
 

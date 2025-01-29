@@ -26,10 +26,6 @@ class OnlineMode(State):
         self.button_back = Button(self.game, (button_pos[0], button_pos[1] * 5 // 3), False, "Back", self.game.font_small, (100, 50), button_color)
 
         self.name = ""
-        self.name_warning = 0
-        self.name_warning_surf = pygame.Surface((150, 40))
-        self.name_warning_surf.fill(BACKGROUND)
-        self.name_warning_surf.set_alpha(0)
 
         self.input_box = pygame.Rect(self.game.screen.get_width() // 2 - 150, self.game.screen.get_height() // 2 + 75, 300, 50)
         self.writing = False
@@ -68,7 +64,8 @@ class OnlineMode(State):
                 if event.button == 1:
                     if self.button_9x9.check_click():
                         if self.name == "":
-                            self.name_warning = 6000
+                            self.game.show_error("Please enter a name")
+                            print("Please enter a name")
                         else:
                             try:
                                 game_main = Client(self.game, 9, self.name)
@@ -79,7 +76,7 @@ class OnlineMode(State):
 
                     if self.button_11x11.check_click():
                         if self.name == "":
-                            self.name_warning = 6000
+                            self.game.show_error("Please enter a name")
                         else:
                             try:
                                 game_main = Client(self.game, 11, self.name)
@@ -123,14 +120,7 @@ class OnlineMode(State):
 
         self.button_9x9.render(surf)
         self.button_11x11.render(surf)
-
         self.button_back.render(surf)
-
-        if self.name_warning > 0:
-            self.name_warning -= max(1, (6000 - self.name_warning) ** 2 // 10000)
-            self.name_warning_surf.set_alpha(int(255 * (self.name_warning / 6000)))
-            self.game.draw_text(self.name_warning_surf, "Enter a name", (245, 40, 30), self.name_warning_surf.get_width() // 2, self.name_warning_surf.get_height() // 2, self.game.font_small)
-            surf.blit(self.name_warning_surf, (self.game.screen.get_width() // 2 - self.name_warning_surf.get_width() // 2, self.game.screen.get_height() // 2 - self.name_warning_surf.get_height() // 2 - 50))
 
         pygame.draw.rect(surf, (0, 0, 0), self.input_box, 0, 10)
         pygame.draw.rect(surf, (255, 255, 255), self.input_box, 2, 10)

@@ -52,6 +52,7 @@ class Client(State):
 
         self.sock = None
         self.connected = False
+        self.CONNECTION_REFUSED = pygame.USEREVENT + 1
 
         self.thread = threading.Thread(target=self.main_connect)
         self.thread.start()
@@ -62,7 +63,7 @@ class Client(State):
             self.sock.connect((SERVER, PORT))
         except socket.error as e:
             print(f"Socket error: {e}")
-            pygame.event.post(pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_ESCAPE}))
+            pygame.event.post(pygame.event.Event(self.CONNECTION_REFUSED, {"error": e}))
             return
         print("[CONNECTED] Connected to server")
         self.connected = True
@@ -139,15 +140,21 @@ class Client(State):
             if event.type == pygame.QUIT:
                 self.close_state()
                 self.game.running = False
+                break
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.close_state()
-                    self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
-                    self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
+                    self.game.reset_screen()
                     print("Client -> OnlineMode")
                     break
-            
+
+            if event.type == self.CONNECTION_REFUSED:
+                self.close_state()
+                self.game.reset_screen()
+                self.game.show_error(f"Server refused connection")
+                break
+
             if event.type == pygame.MOUSEBUTTONDOWN and self.board.ready:
                 if event.button == 1:
                     x, y = pygame.mouse.get_pos() 
