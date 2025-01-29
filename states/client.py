@@ -51,6 +51,7 @@ class Client(State):
         self.opp_disconnect = False
 
         self.sock = None
+        self.connected = False
 
         self.thread = threading.Thread(target=self.main_connect)
         self.thread.start()
@@ -58,16 +59,13 @@ class Client(State):
     def main_connect(self):
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.settimeout(2)
             self.sock.connect((SERVER, PORT))
         except socket.error as e:
             print(f"Socket error: {e}")
-            self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
-            self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
-            self.exit_state()
+            pygame.event.post(pygame.event.Event(pygame.KEYDOWN, {"key": pygame.K_ESCAPE}))
             return
-        self.sock.settimeout(None)
         print("[CONNECTED] Connected to server")
+        self.connected = True
 
         send(self.sock, f"info {self.size} {self.name}")    # Send the size of the board and the name of the player
         
@@ -128,10 +126,11 @@ class Client(State):
 
     def close_state(self):
         self.msg = END_CONNECTION
-        try:
-            send(self.sock, self.msg)
-        except:
-            pass
+        if self.sock is not None and self.connected:
+            try:
+                send(self.sock, self.msg)
+            except:
+                pass
         self.thread.join()
         self.exit_state()
 
@@ -147,6 +146,7 @@ class Client(State):
                     self.game.screen = pygame.display.set_mode((WIDTH + SIDE_PANEL, HEIGHT))
                     self.game.board_display = pygame.Surface((WIDTH // RENDER_SCALE, HEIGHT // RENDER_SCALE))
                     print("Client -> OnlineMode")
+                    break
             
             if event.type == pygame.MOUSEBUTTONDOWN and self.board.ready:
                 if event.button == 1:
@@ -194,5 +194,5 @@ class Client(State):
 
         self.game.screen.blit(pygame.transform.scale(self.game.board_display, (self.width, self.height)), (0, 0))
 
-        pygame.display.flip()
+        
         
