@@ -337,6 +337,10 @@ class VisualBoard(Board):
         super().__init__(width, height)
         self.game = game
 
+        light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+        light_tile.fill(LIGHT_TILE)
+        dark_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
+        dark_tile.fill(DARK_TILE)
         self.assets = {
             WHITE: {
                 ROOK: pygame.transform.scale(game.assets[WHITE][ROOK], (SQUARE_SIZE, SQUARE_SIZE)),
@@ -346,6 +350,8 @@ class VisualBoard(Board):
                 ROOK: pygame.transform.scale(game.assets[BLACK][ROOK], (SQUARE_SIZE, SQUARE_SIZE)),
             },
             "castle_tile": pygame.transform.scale(game.assets["castle_tile"], (SQUARE_SIZE, SQUARE_SIZE)),
+            "light_tile": light_tile,
+            "dark_tile": dark_tile,
         }
         self.scroll = 0
 
@@ -372,19 +378,14 @@ class VisualBoard(Board):
         self.game.sounds["move"].play()
 
     def render(self) -> None:
-        light_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-        light_tile.fill(LIGHT_TILE)
-        dark_tile = pygame.Surface((SQUARE_SIZE, SQUARE_SIZE))
-        dark_tile.fill(DARK_TILE)
-
         board_display = self.game.board_display
 
         for row in range(self.height):
             for col in range(self.width):
                 if (row + col) % 2 == 0:
-                    board_display.blit(light_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(self.assets["light_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 else:
-                    board_display.blit(dark_tile, (col * SQUARE_SIZE, row * SQUARE_SIZE))
+                    board_display.blit(self.assets["dark_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
                 if (row, col) in self.CASTLE_POSITIONS:
                     board_display.blit(self.assets["castle_tile"], (col * SQUARE_SIZE, row * SQUARE_SIZE))
 
