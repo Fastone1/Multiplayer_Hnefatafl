@@ -68,9 +68,9 @@ class AIMode(State):
                     print("AIMode -> LocalMode")
 
                 if event.key == pygame.K_r:
+                    self.bot.board.reset(9, 9)
                     self.board.reset(9, 9)
                     self.board.deselect_piece()
-                    self.scroll = 0
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
